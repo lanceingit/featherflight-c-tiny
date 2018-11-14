@@ -1,0 +1,50 @@
+#pragma once
+
+#include "chip.h"
+#include "version.h"
+
+#define MM_HEAP_SIZE        (4*1024)
+#define MM_BYTE_ALIGNMENT  4
+
+#ifdef F3_EVO
+
+#define MPU6050_I2C     I2C1
+#define HMC5883_I2C     I2C1
+#define MS5611_I2C      I2C1
+
+#define SPI_FLAHS_SPI   SPI2
+
+#define INERTIAL_SENSOR_ROTATION    ROTATION_ROLL_180_YAW_270
+
+#define MPU6050_ACCEL_DEFAULT_RATE				1000
+#define MPU6050_GYRO_DEFAULT_RATE				1000
+
+#define MPU6050_ACCEL_DEFAULT_DRIVER_FILTER_FREQ	30
+#define MPU6050_GYRO_DEFAULT_DRIVER_FILTER_FREQ		30
+
+#elif LINUX
+
+#define SYSTEM_CYCLE              (1000)
+
+#define MTD_FILE_SIZE_MAX (10*1024*1024)
+#define MTD_PATH "/tmp/file.mtd"
+
+
+#define MPU6050_PATH "/dev/mpu6050"
+#define INERTIAL_SENSOR_ROTATION    ROTATION_ROLL_180_YAW_90
+
+#define MPU6050_ACCEL_DEFAULT_RATE				500
+#define MPU6050_GYRO_DEFAULT_RATE				500
+
+#define MPU6050_ACCEL_XY_DEFAULT_FILTER_FREQ	45
+#define MPU6050_ACCEL_Z_DEFAULT_FILTER_FREQ	    30
+#define MPU6050_GYRO_XY_DEFAULT_FILTER_FREQ		65
+#define MPU6050_GYRO_Z_DEFAULT_FILTER_FREQ		45
+
+#define SPL06_PATH "/dev/spl06"
+#define DPS280_PATH "/dev/dps280"
+
+#endif
+
+
+
