@@ -11,12 +11,12 @@ void lpf2p_set_cutoff_frequency(struct lpf2p_s* filter, float sample_freq, float
     }
     float fr = sample_freq/filter->cutoff_freq;
     float ohm = tanf(M_PI_F/fr);
-    float c = 1.0f+2.0f*cosf(M_PI_F/4.0f)*ohm + ohm*ohm;
+    float c = 1.0f+2.0f*cos_f(M_PI_F/4.0f)*ohm + ohm*ohm;
     filter->b0 = ohm*ohm/c;
     filter->b1 = 2.0f*filter->b0;
     filter->b2 = filter->b0;
     filter->a1 = 2.0f*(ohm*ohm-1.0f)/c;
-    filter->a2 = (1.0f-2.0f*cosf(M_PI_F/4.0f)*ohm+ohm*ohm)/c;
+    filter->a2 = (1.0f-2.0f*cos_f(M_PI_F/4.0f)*ohm+ohm*ohm)/c;
 }
 
 void lpf2p_init(struct lpf2p_s* filter, float sample_freq, float cutoff_freq)

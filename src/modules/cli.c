@@ -15,6 +15,7 @@
 
 #include "cli.h"
 #include "debug.h"
+#include "mm.h"
 
 /*
 intput -> string ->  cmd/arg0/arg1/... -> function(arg0,arg1,...) -> output
@@ -118,7 +119,7 @@ void cli_device_write(const char *format, ...)
 	int len;
 
 	va_start(args,format);
-	len = vsprintf((char*)write_buffer, format, args);
+//	len = vsprintf((char*)write_buffer, format, args);
 	va_end(args);
 
 #ifdef F3_EVO
@@ -183,7 +184,7 @@ static void cli_handle_cmd(char* buf)
             argv_len++;
 		}
         
-        argv[argc] = malloc(argv_len+1);
+        argv[argc] = mm_malloc(argv_len+1);
         strncpy(argv[argc], p-argv_len, argv_len);      
         argv[argc][argv_len] = '\0';       
         argc++;
@@ -217,7 +218,7 @@ static void cli_handle_cmd(char* buf)
     }
     
     while(argc--) {
-        free(argv[argc]);
+        mm_free(argv[argc]);
     }
 
     cli_device_write("\n>");

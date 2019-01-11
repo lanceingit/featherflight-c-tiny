@@ -1411,11 +1411,6 @@
               <FilePath>..\src\mathlib\vector.c</FilePath>
             </File>
             <File>
-              <FileName>srcdkf.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\src\mathlib\srcdkf.c</FilePath>
-            </File>
-            <File>
               <FileName>dcm.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\src\mathlib\dcm.c</FilePath>

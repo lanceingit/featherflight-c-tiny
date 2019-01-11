@@ -35,7 +35,13 @@ struct variance_s
 	float data_sq[100];
 };
 
+float sin_f(float x);
+float cos_f(float x);
+float atan2_f(float y, float x);
+float acos_f(float x);
+float powerf(float base, int exp);
 float inv_sqrt(float x);
+
 float constrain(float val, float min_val, float max_val);
 float wrap_pi(float bearing);
 float press2alt(float p);

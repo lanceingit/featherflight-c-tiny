@@ -35,7 +35,7 @@ static inline void wwlink_encode_system_msg(uint8_t level,uint8_t * buf)
 
 	data.level = level;
 	memset(data.data,0,64);
-	snprintf((char *)data.data,64,(char *)buf);
+//	snprintf((char *)data.data,64,(char *)buf);
 
 	msg.item_id = WWLINK_ITEM_SYSTEM;
 	msg.subitem_id = WWLINK_ITEM_SYSTEM_MSG;

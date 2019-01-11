@@ -148,7 +148,7 @@ void ms5611_update()
              * h = -------------------------------  + h1
              *                   a
              */
-            this->heir.altitude = (((pow((p / p1), (-(a * R) / g))) * T1) - T1) / a;
+            this->heir.altitude = (((powerf((p / p1), (-(a * R) / g))) * T1) - T1) / a;
 
         }
         

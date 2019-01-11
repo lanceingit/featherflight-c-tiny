@@ -2,6 +2,7 @@
 
 #include "chip.h"
 #include "version.h"
+#include "memlib.h"
 
 #define MM_HEAP_SIZE        (4*1024)
 #define MM_BYTE_ALIGNMENT  4

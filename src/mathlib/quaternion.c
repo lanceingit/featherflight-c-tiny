@@ -1,6 +1,7 @@
 #include "quaternion.h"
 #include "vector.h"
 #include <math.h>
+#include "mathlib.h"
 
 
 static Quaternion tmp0;
@@ -62,10 +63,10 @@ Quaternion quaternion_div(Quaternion q1, Quaternion q2)
 
 Quaternion quaternion_from_yaw(float yaw) 
 {
-    tmp0.w = cosf(yaw / 2.0f);
+    tmp0.w = cos_f(yaw / 2.0f);
     tmp0.x = 0.0f;
     tmp0.y = 0.0f;
-    tmp0.z = sinf(yaw / 2.0f);
+    tmp0.z = sin_f(yaw / 2.0f);
     
     return tmp0;
 }
@@ -120,9 +121,9 @@ Quaternion quaternion_from_dcm(Dcm m)
 
 Vector quaternion_to_euler(Quaternion q)
 {
-    vtmp0.x = atan2f(2.0f * (q.w * q.x + q.y * q.z), 1.0f - 2.0f * (q.x * q.x + q.y * q.y));
-    vtmp0.y = asinf(2.0f * (q.w * q.y - q.z * q.x));
-    vtmp0.z = atan2f(2.0f * (q.w * q.z + q.x * q.y), 1.0f - 2.0f * (q.y * q.y + q.z * q.z));
+    vtmp0.x = atan2_f(2.0f * (q.w * q.x + q.y * q.z), 1.0f - 2.0f * (q.x * q.x + q.y * q.y));
+    vtmp0.y = 0.5f * M_PI_F - acos_f(2.0f * (q.w * q.y - q.z * q.x));
+    vtmp0.z = atan2_f(2.0f * (q.w * q.z + q.x * q.y), 1.0f - 2.0f * (q.y * q.y + q.z * q.z));
     
     return vtmp0;
 }

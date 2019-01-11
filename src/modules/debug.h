@@ -4,11 +4,19 @@
 
 #include "cli.h"
 
-#define PRINT(format,...)\
-	do {\
-        printf(""format"",##__VA_ARGS__ );\
-		cli_device_write(""format"",##__VA_ARGS__ );\
-	} while (0)
+
+#ifdef LINUX        
+    #define PRINT(format,...)\
+        do {\
+            printf(""format"",##__VA_ARGS__ );\
+            cli_device_write(""format"",##__VA_ARGS__ );\
+        } while (0)
+#else
+    #define PRINT(format,...)\
+        do {\
+            cli_device_write(""format"",##__VA_ARGS__ );\
+        } while (0)
+#endif
 
 #define PRINT_BUF(str, buf, len)\
     do {\

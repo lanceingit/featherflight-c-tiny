@@ -128,7 +128,7 @@ bool att_est_q_run(float dt)
 		// Magnetometer correction
 		// Project mag field vector to global frame and extract XY component
         this->mag_earth = quaternion_conjugate(this->heir.q, this->heir.mag);
-		float mag_err = wrap_pi(atan2f(this->mag_earth.y, this->mag_earth.x) - this->mag_decl);
+		float mag_err = wrap_pi(atan2_f(this->mag_earth.y, this->mag_earth.x) - this->mag_decl);
 
 		// Project magnetometer correction to body frame
         this->heir.corr = vector_add(this->heir.corr, vector_mul(quaternion_conjugate_inversed(this->heir.q, vector_set(0.0f, 0.0f, -mag_err)), this->w_mag));

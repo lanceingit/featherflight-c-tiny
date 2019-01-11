@@ -3,6 +3,7 @@
 #include <string.h>
 #include "mathlib.h"
 #include <math.h>
+#include "mm.h"
 
 static float tmp_buf[30*30];
 static Matrix tmp0 = {30,30,tmp_buf};
@@ -21,7 +22,7 @@ float matrix_item(Matrix m, uint8_t row, uint8_t column)
 void matrix_separate(Matrix* m)
 {
     uint16_t len = m->row*m->column*sizeof(float);
-    float* buf = malloc(len);       //FIXME:use own malloc
+    float* buf = mm_malloc(len);       
     if(buf != NULL) {
         memcpy(buf, m->data, len);
         m->data = buf;
@@ -30,7 +31,7 @@ void matrix_separate(Matrix* m)
 
 void matrix_destroy(Matrix* m)
 {
-    free(m->data);
+    mm_free(m->data);
     m->data = NULL;
 }
 
