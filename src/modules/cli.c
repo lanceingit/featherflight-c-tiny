@@ -43,12 +43,15 @@ static void cli_handle_cmd(char* buf);
 void help_shell(int argc, char *argv[]);
 void reboot_shell(int argc, char *argv[]);
 
-#define CLI_PORT  14558
-static int cli_socket_fd = -1;
 static uint8_t read_buffer[BUFFER_SIZE+1];
 static uint8_t write_buffer[500];
+
+#ifdef LINUX
+#define CLI_PORT  14558
+static int cli_socket_fd = -1;
 static struct sockaddr_in recv_addr;
 static int addr_len = 0;
+#endif
 
 void cli_device_init(void)
 {
@@ -88,6 +91,7 @@ void cli_init(void)
 int cli_device_read(uint8_t* socket_buffer, uint16_t size)
 {
 #ifdef F3_EVO
+    return 0;    
 #elif LINUX     
     int len = 0;
 

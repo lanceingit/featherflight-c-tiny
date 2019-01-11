@@ -101,27 +101,27 @@ uint8_t log_sens_write(uint8_t id, uint16_t rate, void* p)
 	return len;
 }
 
-uint8_t log_alt_write(uint8_t id, uint16_t rate, void* p)
-{
-    struct log_alt_s pkt = {
-    	LOG_PACKET_HEADER_INIT(id),
-		.pos = alt_est_3o.heir.alt,
-		.vel= alt_est_3o.heir.vel,
-		// .baro_alt;
-		// .baro_vel;
-		.baro_corr = alt_est_3o.alt_err,
-		// .acc_alt;
-		// .acc_vel;
-		.acc = alt_est_3o.heir.acc_neu_z,
-		.bias = alt_est_3o.acc_corr,
-		.alt_ref = alt_est_3o.heir.ref_alt,
-		.baro = baro->altitude_smooth - alt_est_3o.heir.ref_alt,
-    };
-	uint8_t len = sizeof(struct log_alt_s);
-	memcpy(p, &pkt, len);
+// uint8_t log_alt_write(uint8_t id, uint16_t rate, void* p)
+// {
+//     struct log_alt_s pkt = {
+//     	LOG_PACKET_HEADER_INIT(id),
+// 		.pos = alt_est_3o.heir.alt,
+// 		.vel= alt_est_3o.heir.vel,
+// 		// .baro_alt;
+// 		// .baro_vel;
+// 		.baro_corr = alt_est_3o.alt_err,
+// 		// .acc_alt;
+// 		// .acc_vel;
+// 		.acc = alt_est_3o.heir.acc_neu_z,
+// 		.bias = alt_est_3o.acc_corr,
+// 		.alt_ref = alt_est_3o.heir.ref_alt,
+// 		.baro = baro->altitude_smooth - alt_est_3o.heir.ref_alt,
+//     };
+// 	uint8_t len = sizeof(struct log_alt_s);
+// 	memcpy(p, &pkt, len);
 
-	return len;
-}
+// 	return len;
+// }
 
 #include "log_messages.h"
 
@@ -129,7 +129,7 @@ static struct log_s log[] = {
 	LOG_DEF(att, 50, "ffffffffffff",	"r,p,y,rsp,psp,ysp,rr,pr,yr,rrs,prs,yrs"),
 	LOG_DEF(imu, 100, "ffffffffffff", "AccX,AccY,AccZ,GyroX,GyroY,GyroZ,MagX,MagY,MagZ,tA,tG,tM"),
 	LOG_DEF(sens, 50, "fff", "BaroPres,BaroAlt,BaroTemp"),
-	LOG_DEF(alt, 50, "fffffffffff","alt,vel,bp,bv,bc,ap,av,a,b,ref,baro"),
+	// LOG_DEF(alt, 50, "fffffffffff","alt,vel,bp,bv,bc,ap,av,a,b,ref,baro"),
 };
 
 static const unsigned log_num = sizeof(log) / sizeof(log[0]);

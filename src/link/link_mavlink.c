@@ -162,16 +162,16 @@ void mavlink_stream(void)
                                        0, MAV_STATE_STANDBY);  
     }
     
-    TIMER_DEF(last_sen_update_time)
-    if(timer_check(&last_sen_update_time, 30*1000))
-    {
-        mavlink_msg_highres_imu_send(MAV_CH,
-                               timer_now(),
-                               imu->acc.x, imu->acc.y, imu->acc.z,
-                               imu->gyro.x*M_RAD_TO_DEG,imu->gyro.y*M_RAD_TO_DEG,imu->gyro.z*M_RAD_TO_DEG,
-                               compass->mag.x, compass->mag.y, compass->mag.z,
-                               baro->pressure, (alt_est_3o.heir.ref_inited? baro->altitude_smooth-alt_est_3o.heir.ref_alt:0), baro->altitude, baro->temperature,
-                               0xFFFF);
+    // TIMER_DEF(last_sen_update_time)
+    // if(timer_check(&last_sen_update_time, 30*1000))
+    // {
+    //     mavlink_msg_highres_imu_send(MAV_CH,
+    //                            timer_now(),
+    //                            imu->acc.x, imu->acc.y, imu->acc.z,
+    //                            imu->gyro.x*M_RAD_TO_DEG,imu->gyro.y*M_RAD_TO_DEG,imu->gyro.z*M_RAD_TO_DEG,
+    //                            compass->mag.x, compass->mag.y, compass->mag.z,
+    //                            baro->pressure, (alt_est_3o.heir.ref_inited? baro->altitude_smooth-alt_est_3o.heir.ref_alt:0), baro->altitude, baro->temperature,
+    //                            0xFFFF);
 
         // Vector v;
         // imu_get_acc(0, &v);
@@ -192,40 +192,40 @@ void mavlink_stream(void)
         //                        "mag_len",
         //                        vector_length(v));
 
-        mavlink_msg_named_value_float_send(MAV_CH,
-                              timer_now(),
-                              "3o_alt",
-                              alt_est_3o.heir.alt);          
-        mavlink_msg_named_value_float_send(MAV_CH,
-                              timer_now(),
-                              "3o_vel",
-                              alt_est_3o.heir.vel);          
-        mavlink_msg_named_value_float_send(MAV_CH,
-                              timer_now(),
-                              "3o_acc",
-                              alt_est_3o.heir.acc_neu_z);          
-        mavlink_msg_named_value_float_send(MAV_CH,
-                              timer_now(),
-                              "3o_acc_u",
-                              alt_est_3o.heir.acc_neu_z - alt_est_3o.acc_corr);                                  
-        mavlink_msg_named_value_float_send(MAV_CH,
-                              timer_now(),
-                              "3o_err",
-                              alt_est_3o.alt_err);          
-        mavlink_msg_named_value_float_send(MAV_CH,
-                              timer_now(),
-                              "3o_alt_c",
-                              alt_est_3o.alt_corr);          
-        mavlink_msg_named_value_float_send(MAV_CH,
-                              timer_now(),
-                              "3o_vel_c",
-                              alt_est_3o.vel_corr);          
-        mavlink_msg_named_value_float_send(MAV_CH,
-                              timer_now(),
-                              "3o_acc_c",
-                              alt_est_3o.acc_corr);             
+    //     mavlink_msg_named_value_float_send(MAV_CH,
+    //                           timer_now(),
+    //                           "3o_alt",
+    //                           alt_est_3o.heir.alt);          
+    //     mavlink_msg_named_value_float_send(MAV_CH,
+    //                           timer_now(),
+    //                           "3o_vel",
+    //                           alt_est_3o.heir.vel);          
+    //     mavlink_msg_named_value_float_send(MAV_CH,
+    //                           timer_now(),
+    //                           "3o_acc",
+    //                           alt_est_3o.heir.acc_neu_z);          
+    //     mavlink_msg_named_value_float_send(MAV_CH,
+    //                           timer_now(),
+    //                           "3o_acc_u",
+    //                           alt_est_3o.heir.acc_neu_z - alt_est_3o.acc_corr);                                  
+    //     mavlink_msg_named_value_float_send(MAV_CH,
+    //                           timer_now(),
+    //                           "3o_err",
+    //                           alt_est_3o.alt_err);          
+    //     mavlink_msg_named_value_float_send(MAV_CH,
+    //                           timer_now(),
+    //                           "3o_alt_c",
+    //                           alt_est_3o.alt_corr);          
+    //     mavlink_msg_named_value_float_send(MAV_CH,
+    //                           timer_now(),
+    //                           "3o_vel_c",
+    //                           alt_est_3o.vel_corr);          
+    //     mavlink_msg_named_value_float_send(MAV_CH,
+    //                           timer_now(),
+    //                           "3o_acc_c",
+    //                           alt_est_3o.acc_corr);             
                              
-    }
+    // }
     
     TIMER_DEF(last_att_update_time)
     if(timer_check(&last_att_update_time, 100*1000))

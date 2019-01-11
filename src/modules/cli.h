@@ -10,4 +10,3 @@ void cli_updata(void);
 void cli_regist(const char* name, shell_func cmd);
 void cli_device_write(const char *format, ...);
 
-     

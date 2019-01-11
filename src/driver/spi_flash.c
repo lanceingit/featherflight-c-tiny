@@ -52,7 +52,7 @@ static int8_t spi_flash_readIdentification(void);
 
 struct spi_flash_s spi_flash;
 
-struct spi_flash_s* this=&spi_flash;
+static struct spi_flash_s* this=&spi_flash;
 
 /**
  * Initialize the driver, must be called before any other routines.
@@ -63,14 +63,14 @@ struct spi_flash_s* this=&spi_flash;
 bool spi_flash_init()
 {
 	couldBeBusy=false;
-	geometry.pageSize = M25P16_PAGESIZE;
+	this->pageSize = M25P16_PAGESIZE;
     /* 
         if we have already detected a flash device we can simply exit 
         
         TODO: change the init param in favour of flash CFG when ParamGroups work is done
         then cs pin can be specified in hardware_revision.c or config.c (dependent on revision).
     */
-    if (geometry.sectors) {
+    if (this->sectors) {
         return true;
     }
     
@@ -197,36 +197,36 @@ int8_t spi_flash_readIdentification()
 
     switch (chipID) {
         case JEDEC_ID_MICRON_M25P16:
-            geometry.sectors = 32;
-            geometry.pagesPerSector = 256;
+            this->sectors = 32;
+            this->pagesPerSector = 256;
         break;
         case JEDEC_ID_MACRONIX_MX25L3206E:
-            geometry.sectors = 64;
-            geometry.pagesPerSector = 256;
+            this->sectors = 64;
+            this->pagesPerSector = 256;
         break;
         case JEDEC_ID_MICRON_N25Q064:
         case JEDEC_ID_WINBOND_W25Q64:
         case JEDEC_ID_MACRONIX_MX25L6406E:
-            geometry.sectors = 128*16;
-            geometry.pagesPerSector = 16;
+            this->sectors = 128*16;
+            this->pagesPerSector = 16;
         break;
         case JEDEC_ID_MICRON_N25Q128:
         case JEDEC_ID_WINBOND_W25Q128:
-            geometry.sectors = 256;
-            geometry.pagesPerSector = 256;
+            this->sectors = 256;
+            this->pagesPerSector = 256;
         break;
         default:
             // Unsupported chip or not an SPI NOR flash
-            geometry.sectors = 0;
-            geometry.pagesPerSector = 0;
+            this->sectors = 0;
+            this->pagesPerSector = 0;
 
-            geometry.sectorSize = 0;
-            geometry.totalSize = 0;
+            this->sectorSize = 0;
+            this->totalSize = 0;
             return -1;
     }
 
-    geometry.sectorSize = geometry.pagesPerSector * geometry.pageSize;
-    geometry.totalSize = geometry.sectorSize * geometry.sectors;
+    this->sectorSize = this->pagesPerSector * this->pageSize;
+    this->totalSize = this->sectorSize * this->sectors;
 
     couldBeBusy = true; // Just for luck we'll assume the chip could be busy even though it isn't specced to be
 
@@ -364,8 +364,8 @@ int spi_flash_readBytes(uint32_t address, uint8_t *buffer, int length)
  *
  * Can be called before calling m25p16_init() (the result would have totalSize = 0).
  */
-struct flashGeometry_s* spi_flash_getGeometry()
+struct spi_flash_s* spi_flash_getGeometry()
 {
-    return &geometry;
+    return this;
 }
 

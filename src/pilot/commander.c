@@ -43,7 +43,7 @@ struct commander_s commander = {
     .curr_controler = 0,
 };
 
-struct commander_s* this = &commander;
+static struct commander_s* this = &commander;
 
 
 bool system_armed(void)
@@ -242,23 +242,23 @@ void commander_update(void)
         case ALT_NORMAL:
             if(arm_status_change) {
                 if(this->armed) {
-                    //在螺旋桨转起来前，设置气压计权重为0，关闭气压计融合。
+                    //在螺旋桨转起来前，设置气压计权重�?，关闭气压计融合�?
                     this->alt_scene = ALT_PRE_TAKEOFF;
                 }
             }
             if(this->stick.thrust > STICK_DEADZONE) {
-                //向上打杆。增加vel权重，加快权重转换。加速度对突然运动估计不准
+                //向上打杆。增加vel权重，加快权重转换。加速度对突然运动估计不�?
                 this->alt_scene = ALT_MOVE_UP;
                 alt_smooth_time = timer_new(1.2e6);
             } else if(this->stick.thrust < -STICK_DEADZONE) {
-                //向下打杆。增加vel权重，比上升更大，加快权重转换。
+                //向下打杆。增加vel权重，比上升更大，加快权重转换�?
                 this->alt_scene = ALT_MOVE_DOWN;
                 alt_smooth_time = timer_new(1.2e6);
             }
             break;
         case ALT_PRE_TAKEOFF:
-            //当气压计高度大于起飞前高度，设置为起飞模式
-            //pos，vel权重增加，得到一个准确值。同时减小bias权重，因为这时修正不准。
+            //当气压计高度大于起飞前高度，设置为起飞模�?
+            //pos，vel权重增加，得到一个准确值。同时减小bias权重，因为这时修正不准�?
             if(baro->altitude_smooth-alt->ref_alt > alt->terrain_offset) {
                 this->alt_scene = ALT_TAKEOFF;
             }              
@@ -276,10 +276,10 @@ void commander_update(void)
             }
             if(fabs(alt->vel) > PARAM_GET(CMDER_VEL_HOLD_MAX) && 
                 (this->alt_scene == ALT_MOVE_UP||timer_is_timeout(&alt_smooth_time))){
-                //悬停不稳时，使用速度控制。能有效抑制上拉后掉高	
+                //悬停不稳时，使用速度控制。能有效抑制上拉后掉�?
                 this->alt_scene = ALT_MOVE_UP;
             } else if(!timer_is_timeout(&alt_smooth_time) > 0 && this->alt_scene == ALT_MOVE_DOWN) {
-                //悬停不稳时，使用位置控制，但对目标高度做平滑。能有效抑制下拉后回弹
+                //悬停不稳时，使用位置控制，但对目标高度做平滑。能有效抑制下拉后回�?
                 this->alt_scene = ALT_MOVE_DOWN;
             }        
             break;

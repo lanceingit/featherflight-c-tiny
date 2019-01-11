@@ -174,10 +174,10 @@ void task_att(void)
 	}
 }
 
-void task_alt(void)
-{
-    est_alt_run();
-}
+// void task_alt(void)
+// {
+//     est_alt_run();
+// }
 
 void task_commander(void)
 {
@@ -276,7 +276,7 @@ int main()
     att_est_register(&att_est_q.heir);
     // att_est_register(&att_est_cf.heir);
 //    alt_est_register(&alt_est_3o.heir);
-    alt_est_register(&alt_est_inav.heir);
+    // alt_est_register(&alt_est_inav.heir);
     est_init();
 
     variance_create(&baro_variance, 100);
@@ -285,7 +285,7 @@ int main()
 //    task_create("compass", (10000000 / 150), task_compass);
     task_create("baro", 25000, task_baro);
     task_create("att", 2000, task_att);
-    task_create("alt", 2*1000, task_alt);
+    // task_create("alt", 2*1000, task_alt);
 //    task_create("cmder", 2000, task_commander);
 //    task_create("nav", 2000, task_navigator);
    task_create("link", 2*1000, task_link);
@@ -301,12 +301,14 @@ int main()
         }
         times_t main_elapsed = timer_elapsed(&main_loop_time);
 
+    #ifdef LINUX  
         // PRINT("main loop:%3.3fms, elapsed:%3.3fms\n", dt*1000, main_elapsed/1000.0f);
 		if(main_elapsed>SYSTEM_CYCLE || dt>(0.001+SYSTEM_CYCLE/1e6)) {
 			PRINT("warning slow loop:%3.3fms, elapsed:%3.3fms\n", dt*1000, main_elapsed/1000.0f);
 			main_elapsed = SYSTEM_CYCLE - 500;
 		}
-		usleep(SYSTEM_CYCLE - main_elapsed);        
+		usleep(SYSTEM_CYCLE - main_elapsed);
+    #endif            
 
         // PERF_DEF(main_perf)
         // perf_interval(&main_perf);

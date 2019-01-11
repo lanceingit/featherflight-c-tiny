@@ -186,6 +186,6 @@ void mpu6050_update(Vector* acc, Vector* gyro)
     gyro->y = (float)((int16_t)((this->buf[10] << 8) | this->buf[11]))*(0.0174532 / 16.4),
     gyro->z = (float)((int16_t)((this->buf[12] << 8) | this->buf[13]))*(0.0174532 / 16.4),  
     
-    this->gyro_raw = gyro_new;    
+    this->gyro_raw = *gyro;    
 }
 
