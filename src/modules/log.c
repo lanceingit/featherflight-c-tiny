@@ -132,7 +132,7 @@ static struct log_s log[] = {
 	// LOG_DEF(alt, 50, "fffffffffff","alt,vel,bp,bv,bc,ap,av,a,b,ref,baro"),
 };
 
-static const unsigned log_num = sizeof(log) / sizeof(log[0]);
+static const uint8_t log_num = sizeof(log) / sizeof(log[0]);
 static times_t timer[sizeof(log) / sizeof(log[0])];
 
 uint32_t log_get_size(void)
@@ -165,7 +165,7 @@ void log_init()
 	};
 
 	/* fill message format packet for each format and write it */
-	for (unsigned i = 0; i < log_num; i++) {
+	for (uint8_t i = 0; i < log_num; i++) {
 		log[i].format.type = i;
 		log_msg_format.body = log[i].format;
 

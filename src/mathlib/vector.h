@@ -10,6 +10,7 @@ typedef struct
 } Vector; 
 
 
+Vector vector_zero(void);
 Vector vector_set(float x, float y, float z);
 Vector vector_cross(Vector v1,  Vector v2);
 float vector_scalar(Vector v1,  Vector v2);

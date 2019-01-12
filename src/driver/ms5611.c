@@ -34,12 +34,14 @@
 #define ADDR_CMD_CONVERT_D2_OSR2048		0x56	/* write to this address to start temperature conversion */
 #define ADDR_CMD_CONVERT_D2_OSR4096		0x58	/* write to this address to start temperature conversion */
 
-
+#define T_BASE	(15.0f + 273.15f)	/* temperature at base height in Kelvin */
+#define T_GRA	(-6.5f / 1000.0f)	/* temperature gradient in degrees per metre */
+#define R_GAS   (287.05f)	/* ideal gas constant in J/kg/K */
 
 
 #define MS5611_CONVERSION_INTERVAL	25000	/* microseconds */
 #define MS5611_MEASUREMENT_RATIO	3	/* pressure measurements per temperature measurement */
-#define MSL_PRESSURE   101325
+#define MSL_PRESSURE   101325.0f
 
 
 
@@ -96,17 +98,17 @@ void ms5611_update()
         if(this->measure_phase == 0)
         {
             int32_t dT = (int32_t)raw - ((int32_t)this->prom_buf.s.c5_reference_temp << 8);
-            this->TEMP = 2000 + (int32_t)(((int64_t)dT * this->prom_buf.s.c6_temp_coeff_temp) >> 23);
-			this->OFF  = ((int64_t)this->prom_buf.s.c2_pressure_offset << 16) + (((int64_t)this->prom_buf.s.c4_temp_coeff_pres_offset * dT) >> 7);
-			this->SENS = ((int64_t)this->prom_buf.s.c1_pressure_sens << 15) + (((int64_t)this->prom_buf.s.c3_temp_coeff_pres_sens * dT) >> 8);
+            this->TEMP = 2000 + (int32_t)(((int32_t)dT * this->prom_buf.s.c6_temp_coeff_temp) >> 23);
+			this->OFF  = ((int32_t)this->prom_buf.s.c2_pressure_offset << 16) + (((int32_t)this->prom_buf.s.c4_temp_coeff_pres_offset * dT) >> 7);
+			this->SENS = ((int32_t)this->prom_buf.s.c1_pressure_sens << 15) + (((int32_t)this->prom_buf.s.c3_temp_coeff_pres_sens * dT) >> 8);
 			if (this->TEMP < 2000)
             {
 
 				int32_t T2 = POW2(dT) >> 31;
 
-				int64_t f = POW2((int64_t)this->TEMP - 2000);
-				int64_t OFF2 = 5 * f >> 1;
-				int64_t SENS2 = 5 * f >> 2;
+				int32_t f = POW2(this->TEMP - 2000);
+				int32_t OFF2 = 5 * f >> 1;
+				int32_t SENS2 = 5 * f >> 2;
 
 				if (this->TEMP < -1500) {
 
@@ -128,16 +130,12 @@ void ms5611_update()
         
             this->heir.temperature = this->TEMP / 100.0f;
             this->heir.pressure = P / 100.0f;		/* convert to millibar */
-            const double T1 = 15.0 + 273.15;	/* temperature at base height in Kelvin */
-            const double a  = -6.5 / 1000;	/* temperature gradient in degrees per metre */
-            const double g  = 9.80665;	/* gravity constant in m/s/s */
-            const double R  = 287.05;	/* ideal gas constant in J/kg/K */
 
             /* current pressure at MSL in kPa */
-            double p1 = MSL_PRESSURE / 1000.0;
+            float p1 = MSL_PRESSURE / 1000.0f;
 
             /* measured pressure in kPa */
-            double p = P / 1000.0;
+            float p = P / 1000.0f;
 
             /*
              * Solve:
@@ -148,7 +146,7 @@ void ms5611_update()
              * h = -------------------------------  + h1
              *                   a
              */
-            this->heir.altitude = (((powerf((p / p1), (-(a * R) / g))) * T1) - T1) / a;
+            this->heir.altitude = (((powerf((p / p1), (-(T_GRA * R_GAS) / CONSTANTS_ONE_G))) * T_BASE) - T_BASE) / T_GRA;
 
         }
         

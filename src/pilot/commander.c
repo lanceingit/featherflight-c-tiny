@@ -124,7 +124,7 @@ uint16_t stick_get_position(struct stick_s* s, float limit, float deadzone)
 		pos |= LEFT_STICK_LEFT;
 	} else if (s->yaw>limit) {
 		pos |= LEFT_STICK_RIGHT;
-	} else if (fabsf(s->yaw>limit)<deadzone) {
+	} else if (fabsf(s->yaw)<deadzone) {
 		pos |= LEFT_STICK_H_CENTER;
     }
 
@@ -132,7 +132,7 @@ uint16_t stick_get_position(struct stick_s* s, float limit, float deadzone)
 		pos |= LEFT_STICK_UP;
 	} else if (s->thrust<-limit) {
 		pos |= LEFT_STICK_DOWN;
-	} else if (fabsf(s->thrust>limit)<deadzone) {
+	} else if (fabsf(s->thrust)<deadzone) {
 		pos |= LEFT_STICK_V_CENTER;
     }
 
@@ -140,7 +140,7 @@ uint16_t stick_get_position(struct stick_s* s, float limit, float deadzone)
 		pos |= RIGHT_STICK_LEFT;
 	} else if (s->roll>limit) {
 		pos |= RIGHT_STICK_RIGHT;
-	} else if (fabsf(s->roll>limit)<deadzone) {
+	} else if (fabsf(s->roll)<deadzone) {
 		pos |= RIGHT_STICK_H_CENTER;
     }
 
@@ -148,7 +148,7 @@ uint16_t stick_get_position(struct stick_s* s, float limit, float deadzone)
 		pos |= RIGHT_STICK_UP;
 	} else if (s->pitch>limit) {
 		pos |= RIGHT_STICK_DOWN;
-	} else if (fabsf(s->pitch>limit)<deadzone) {
+	} else if (fabsf(s->pitch)<deadzone) {
 		pos |= RIGHT_STICK_V_CENTER;
     }
 	return pos;
@@ -274,7 +274,7 @@ void commander_update(void)
             if(-STICK_DEADZONE < this->stick.thrust && this->stick.thrust < STICK_DEADZONE) {
                 this->alt_scene = ALT_NORMAL;
             }
-            if(fabs(alt->vel) > PARAM_GET(CMDER_VEL_HOLD_MAX) && 
+            if(fabsf(alt->vel) > PARAM_GET(CMDER_VEL_HOLD_MAX) && 
                 (this->alt_scene == ALT_MOVE_UP||timer_is_timeout(&alt_smooth_time))){
                 //悬停不稳时，使用速度控制。能有效抑制上拉后掉�?
                 this->alt_scene = ALT_MOVE_UP;

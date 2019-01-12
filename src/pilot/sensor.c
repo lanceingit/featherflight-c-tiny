@@ -43,7 +43,7 @@ void imu_gyro_cal(void)
 					}		
 				} else {
 					accel_start = imu->acc;
-					gyro_sum = vector_set(0,0,0);			
+					gyro_sum = vector_zero();			
 					collect_cnt = 0;		
 				}
 			}
@@ -51,13 +51,13 @@ void imu_gyro_cal(void)
 			status = GYRO_CAL_STATUS_IDEL;
 		}
 	} else if(status == GYRO_CAL_STATUS_CAL) {
-		imu->gyro_offset = vector_set(gyro_sum.x/COLLECT_MAX, gyro_sum.y/COLLECT_MAX, gyro_sum.z/COLLECT_MAX);
+		//imu->gyro_offset = vector_set(gyro_sum.x/COLLECT_MAX, gyro_sum.y/COLLECT_MAX, gyro_sum.z/COLLECT_MAX);
 		status = GYRO_CAL_STATUS_IDEL;
 		imu->gyro_need_cal = false;
 		PRINT("gyro cal done\n");
-        PRINT("gyro cal: %f %f %f\n", (double)imu->gyro_offset.x, 
-									  (double)imu->gyro_offset.y, 
-									  (double)imu->gyro_offset.z);
+//        PRINT("gyro cal: %f %f %f\n", (double)imu->gyro_offset.x, 
+//									  (double)imu->gyro_offset.y, 
+//									  (double)imu->gyro_offset.z);
 	} else if(status == GYRO_CAL_STATUS_IDEL) {
 		if(system_armed()) {
 			imu->gyro_need_cal = true;
@@ -70,7 +70,7 @@ void imu_gyro_cal(void)
 		if(!system_armed() && imu->gyro_need_cal) {
 			status = GYRO_CAL_STATUS_COLLECT;
 			accel_start = imu->acc;
-			gyro_sum = vector_set(0,0,0);
+			gyro_sum = vector_zero();
 			collect_cnt = 0;		
 		}
 	}
@@ -138,7 +138,7 @@ void sensor_init(void)
 
 	imu->rotation = INERTIAL_SENSOR_ROTATION;
 	imu->is_update = false;
-	imu->gyro_offset = vector_set(0, 0, 0);
+	imu->gyro_offset = vector_zero();
 
 	if(imu->init()) {
 		imu->ready = true;   

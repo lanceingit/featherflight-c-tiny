@@ -96,12 +96,6 @@
 #define MPU_RA_FIFO_R_W         0x74
 #define MPU_RA_WHO_AM_I         0x75
 
-#define MPU6050_ACCEL_DEFAULT_RATE				1000
-#define MPU6050_GYRO_DEFAULT_RATE				1000
-
-#define MPU6050_ACCEL_DEFAULT_DRIVER_FILTER_FREQ	30
-#define MPU6050_GYRO_DEFAULT_DRIVER_FILTER_FREQ		30
-
 
 enum gyro_fsr_e {
 	INV_FSR_250DPS = 0,
@@ -182,9 +176,9 @@ void mpu6050_update(Vector* acc, Vector* gyro)
     acc->y = (float)((int16_t)((this->buf[2] << 8) | this->buf[3]))*(9.80665f /2048),
     acc->z = (float)((int16_t)((this->buf[4] << 8) | this->buf[5]))*(9.80665f /2048),
     
-    gyro->x = (float)((int16_t)((this->buf[8] << 8) | this->buf[9]))*(0.0174532 / 16.4),
-    gyro->y = (float)((int16_t)((this->buf[10] << 8) | this->buf[11]))*(0.0174532 / 16.4),
-    gyro->z = (float)((int16_t)((this->buf[12] << 8) | this->buf[13]))*(0.0174532 / 16.4),  
+    gyro->x = (float)((int16_t)((this->buf[8] << 8) | this->buf[9]))*(0.0174532f / 16.4f),
+    gyro->y = (float)((int16_t)((this->buf[10] << 8) | this->buf[11]))*(0.0174532f / 16.4f),
+    gyro->z = (float)((int16_t)((this->buf[12] << 8) | this->buf[13]))*(0.0174532f / 16.4f),  
     
     this->gyro_raw = *gyro;    
 }

@@ -6,6 +6,14 @@
 
 static Vector tmp0;
 
+Vector vector_zero(void)
+{
+    tmp0.x = 0.0f;
+    tmp0.y = 0.0f;
+    tmp0.z = 0.0f; 
+
+    return tmp0;
+}
 
 Vector vector_set(float x, float y, float z)
 {
@@ -111,5 +119,5 @@ Vector vector_rotate(Vector v, Dcm d)
 
 void vector_print(char* name, Vector v)
 {
-    PRINT("%s:x:%f y:%f z:%f\n", name, v.x, v.y, v.z);
+//    PRINT("%s:x:%f y:%f z:%f\n", name, v.x, v.y, v.z);
 }

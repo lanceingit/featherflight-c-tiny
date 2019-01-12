@@ -1,6 +1,7 @@
 #include "board.h"
 #include <math.h>
 #include <float.h>
+#include "mathlib.h"
 
 static float mixer_out[4];
 static float roll_control;
@@ -116,9 +117,9 @@ void mixer_mix(float roll, float pitch, float yaw, float thrust, float mixer_out
 
 		} else if (out > 1.0f) {
 			// allow to reduce thrust to get some yaw response
-			float prop_reduction = fminf(0.15f, out - 1.0f);
+			float prop_reduction = MIN(0.15f, out - 1.0f);
 			// keep the maximum requested reduction
-			thrust_reduction = fmaxf(thrust_reduction, prop_reduction);
+			thrust_reduction = MAX(thrust_reduction, prop_reduction);
 
 			if (fabsf(rotors[i].yaw_scale) <= FLT_EPSILON) {
 				yaw = 0.0f;

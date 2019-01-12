@@ -71,7 +71,7 @@ bool att_est_cf_run(float dt)
             this->heir.gyro_bias = vector_add(this->heir.gyro_bias, vector_mul(this->heir.corr, this->ki*dt));
         }
     } else {
-        this->heir.gyro_bias = vector_set(0,0,0);
+        this->heir.gyro_bias = vector_zero();
     }        
 
     // Apply proportional and integral feedback

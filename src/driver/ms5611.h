@@ -26,8 +26,8 @@ struct ms5611_s
     uint8_t measure_phase;
     uint8_t collect_phase;
     int32_t TEMP;
-    int64_t OFF;
-    int64_t SENS;    
+    int32_t OFF;
+    int32_t SENS;    
 	struct i2c_s* i2c;
 }; 
 

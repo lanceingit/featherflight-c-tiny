@@ -205,7 +205,7 @@ void gyro_cal(void)         //TODO:put into sensor
 	while(1) {
 		imu_update();
 		accel_start = imu->acc;
-        gyro_sum = vector_set(0,0,0);
+        gyro_sum = vector_zero();
         for(uint8_t i=0; i<50; i++) {
         	imu_update();
     		gyro = imu->gyro;

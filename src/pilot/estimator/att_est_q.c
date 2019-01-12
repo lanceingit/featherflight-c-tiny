@@ -40,7 +40,7 @@ bool att_est_q_init(void)
 	this->w_accel = PARAM_GET(ATT_W_ACCEL);//0.2f;
 	this->w_mag = PARAM_GET(ATT_W_MAG);//0.1f;
 	this->w_gyro_bias = PARAM_GET(ATT_W_GYRO_BIAS;);//0.1f;
-	PRINT("w_gyro_bias=%f\n", (double)this->w_gyro_bias);
+//	PRINT("w_gyro_bias=%f\n", (double)this->w_gyro_bias);
     
     
     this->heir.acc = imu->acc;
@@ -121,7 +121,7 @@ bool att_est_q_run(float dt)
 	Quaternion q_last = this->heir.q;
 
 	// Angular rate of correction
-    this->heir.corr = vector_set(0,0,0);
+    this->heir.corr = vector_zero();
 	float spin_rate = vector_length(this->heir.gyro);
 
 	if (this->heir.use_compass) {
@@ -170,8 +170,8 @@ bool att_est_q_run(float dt)
 			isfinite(this->heir.q.y) && isfinite(this->heir.q.z))) {
 		// Reset quaternion to last good state
 		this->heir.q = q_last;
-		this->rate = vector_set(0,0,0);
-        this->heir.gyro_bias = vector_set(0,0,0);
+		this->rate = vector_zero();
+        this->heir.gyro_bias = vector_zero();
 		PRINT("q definite\n");
 		return false;
 	}

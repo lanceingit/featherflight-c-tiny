@@ -13,7 +13,7 @@
 #include "fifo.h"
 #include "debug.h"
 
-
+#define USE_MODIFY_FIFO         0
 
 void fifo_f_create(struct fifo_f_s *fifo, float *buf, uint16_t size)
 {
@@ -177,6 +177,7 @@ uint16_t fifo_get_count(struct fifo_s *fifo)
 	return fifo->cnt;
 }
 
+#if USE_MODIFY_FIFO
 uint16_t fifo_get_tail_index(struct fifo_s *fifo)
 {
     return fifo->tail;
@@ -235,6 +236,8 @@ void fifo_set_tail(struct fifo_s *fifo, uint8_t* new_tail)
         fifo->tail = fifo->head;
     }
 }
+
+#endif //USE_MODIFY_FIFO
 
 void fifo_print(struct fifo_s *fifo)
 {
