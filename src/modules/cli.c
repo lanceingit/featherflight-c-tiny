@@ -16,6 +16,7 @@
 #include "cli.h"
 #include "debug.h"
 #include "mm.h"
+#include "printf.h"
 
 /*
 intput -> string ->  cmd/arg0/arg1/... -> function(arg0,arg1,...) -> output
@@ -120,6 +121,7 @@ void cli_device_write(const char *format, ...)
 
 	va_start(args,format);
 //	len = vsprintf((char*)write_buffer, format, args);
+    len = evprintf(format, args);
 	va_end(args);
 
 #ifdef F3_EVO
