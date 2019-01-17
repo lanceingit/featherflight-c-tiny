@@ -11,9 +11,14 @@
 static const char digit[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 
                              'A', 'B', 'C', 'D', 'E', 'F'};
 
+static char* print_buf;                             
+static uint16_t print_cnt=0;
+
 int putcf(int c)
 {
-    return 0;
+    print_buf[print_cnt++] = c;
+
+    return print_cnt;
 }
 
 static uint8_t get_int_len(long int value)
@@ -236,7 +241,7 @@ static uint8_t handle_long(const char* fmt, va_list ap, uint8_t width, char pad)
     return 0;
 }
 
-int evprintf(const char* fmt, va_list ap)
+int evsprintf(char* buf, const char* fmt, va_list ap)
 {
     int len=0;
     float num;
@@ -244,6 +249,9 @@ int evprintf(const char* fmt, va_list ap)
     uint8_t precision;
     uint8_t width;
     char pad;
+
+    print_buf = buf;
+    print_cnt = 0;
 
     while(*fmt) {
         if(*fmt == '%') {
@@ -322,13 +330,13 @@ int evprintf(const char* fmt, va_list ap)
     return len;
 }
 
-int eprintf(const char * fmt, ...)
+int esprintf(char* buf, const char * fmt, ...)
 {
     va_list ap;
     int len;
 
     va_start(ap, fmt);
-    len = evprintf(fmt, ap);
+    len = evsprintf(buf, fmt, ap);
     va_end(ap);
 
     return len;

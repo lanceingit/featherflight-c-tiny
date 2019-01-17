@@ -1,5 +1,7 @@
 #pragma once
 
+#define SM701  1
+
 #include "chip.h"
 #include "version.h"
 
@@ -45,6 +47,10 @@
 
 #define SPL06_PATH "/dev/spl06"
 #define DPS280_PATH "/dev/dps280"
+
+#elif SM701
+
+#define CLI_UART    1
 
 #endif
 

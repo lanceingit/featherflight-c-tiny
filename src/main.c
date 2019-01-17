@@ -109,121 +109,121 @@ int linux_create_thread(const char *name, int priority, int stack_size, void* en
 }
 #endif
 
-void task_link(void)
-{
-	mavlink_message_t msg;
-    wwlink_message_t wwmsg;
+// void task_link(void)
+// {
+// 	mavlink_message_t msg;
+//     wwlink_message_t wwmsg;
 
-	if(mavlink_recv(&msg)) {
-        mavlink_log_handle(&msg);
-	}
+// 	if(mavlink_recv(&msg)) {
+//         mavlink_log_handle(&msg);
+// 	}
 
-    wwlink_recv(&wwmsg);    
-    mavlink_stream();
-    wwlink_stream();
+//     wwlink_recv(&wwmsg);    
+//     mavlink_stream();
+//     wwlink_stream();
 
-    PERF_DEF(link_perf)
-    perf_interval(&link_perf);
-    // perf_print(&link_perf, "link");
-}
+//     PERF_DEF(link_perf)
+//     perf_interval(&link_perf);
+//     // perf_print(&link_perf, "link");
+// }
 
 void task_cli(void)
 {
     cli_updata();
 }
 
-void task_imu(void)
-{        
-    imu_update();
-}    
+// void task_imu(void)
+// {        
+//     imu_update();
+// }    
 
-void task_compass(void)
-{
-    compass_update();
-}
+// void task_compass(void)
+// {
+//     compass_update();
+// }
 
-void task_baro(void)
-{
-    static float baro_alt_f_old=0;
-    static float baro_alt_f=0;
+// void task_baro(void)
+// {
+//     static float baro_alt_f_old=0;
+//     static float baro_alt_f=0;
 
-    baro_update();
+//     baro_update();
 
-    float alt = baro->altitude;
+//     float alt = baro->altitude;
 
-    baro_alt_f = ((baro_alt_f * 0.7f) + (alt * (1.0f - 0.7f)));
-    baro_vel = (baro_alt_f - baro_alt_f_old) / (0.025000f);
-    baro_alt_f_old = baro_alt_f;
+//     baro_alt_f = ((baro_alt_f * 0.7f) + (alt * (1.0f - 0.7f)));
+//     baro_vel = (baro_alt_f - baro_alt_f_old) / (0.025000f);
+//     baro_alt_f_old = baro_alt_f;
 
-    baro_vari = variance_cal(&baro_variance, baro_vel);
-}
+//     baro_vari = variance_cal(&baro_variance, baro_vel);
+// }
 
 
-void task_att(void)
-{
-	if(imu->update) {
-        PERF_DEF(att_elapsed)
-		perf_begin(&att_elapsed);
-		est_att_run();
-		perf_end(&att_elapsed);
-        // perf_print(&att_elapsed, "att_elapsed");
-		imu->update = false;;
-        PERF_DEF(att_perf);
-		perf_interval(&att_perf);
-        // perf_print(&att_perf, "att_perf");
-	}
-}
+// void task_att(void)
+// {
+// 	if(imu->update) {
+//         PERF_DEF(att_elapsed)
+// 		perf_begin(&att_elapsed);
+// 		est_att_run();
+// 		perf_end(&att_elapsed);
+//         // perf_print(&att_elapsed, "att_elapsed");
+// 		imu->update = false;;
+//         PERF_DEF(att_perf);
+// 		perf_interval(&att_perf);
+//         // perf_print(&att_perf, "att_perf");
+// 	}
+// }
 
 // void task_alt(void)
 // {
 //     est_alt_run();
 // }
 
-void task_commander(void)
-{
-    commander_update();
-}
+// void task_commander(void)
+// {
+//     commander_update();
+// }
 
-void task_navigator(void)
-{
-    navigator_update();
-}
+// void task_navigator(void)
+// {
+//     navigator_update();
+// }
 
-void task_log(void)
-{
-    log_run();    
-}
+// void task_log(void)
+// {
+//     log_run();    
+// }
 
-void gyro_cal(void)         //TODO:put into sensor
-{
-    Vector gyro;
-    Vector gyro_sum;
-    Vector accel_start;
-    Vector accel_end;
-    Vector accel_diff;
+// void gyro_cal(void)         //TODO:put into sensor
+// {
+//     Vector gyro;
+//     Vector gyro_sum;
+//     Vector accel_start;
+//     Vector accel_end;
+//     Vector accel_diff;
     
-	while(1) {
-		imu_update();
-		accel_start = imu->acc;
-        gyro_sum = vector_zero();
-        for(uint8_t i=0; i<50; i++) {
-        	imu_update();
-    		gyro = imu->gyro;
-            gyro_sum = vector_add(gyro_sum, gyro);
-    		delay_ms(10);
-        }
-        imu_update();
-		accel_end = imu->acc;
-        accel_diff = vector_sub(accel_start, accel_end);
-		if(vector_length(accel_diff) >  0.2f) continue;
+// 	while(1) {
+// 		imu_update();
+// 		accel_start = imu->acc;
+//         gyro_sum = vector_zero();
+//         for(uint8_t i=0; i<50; i++) {
+//         	imu_update();
+//     		gyro = imu->gyro;
+//             gyro_sum = vector_add(gyro_sum, gyro);
+//     		delay_ms(10);
+//         }
+//         imu_update();
+// 		accel_end = imu->acc;
+//         accel_diff = vector_sub(accel_start, accel_end);
+// 		if(vector_length(accel_diff) >  0.2f) continue;
 
-		imu->gyro_offset.x = gyro_sum.x/50;   
-		imu->gyro_offset.y = gyro_sum.y/50;
-		imu->gyro_offset.z = gyro_sum.z/50;
+// 		imu->gyro_offset.x = gyro_sum.x/50;   
+// 		imu->gyro_offset.y = gyro_sum.y/50;
+// 		imu->gyro_offset.z = gyro_sum.z/50;
         
-        return;
-	}
-}
+//         return;
+// 	}
+// }
 
 #ifdef LINUX
 int featherflight_thread(void* arvg);
@@ -251,12 +251,14 @@ int main()
 #ifdef F3_EVO    
     spi_flash_init();
 #endif        
-    mtd_init();
-    mtd_test();
-    log_init();
-    mavlink_init();
-    wwlink_init();
+    // mtd_init();
+    // mtd_test();
+    // log_init();
+    // mavlink_init();
+    // wwlink_init();
     cli_init();
+
+    PRINT("hello feather flight\n");
 
 #ifdef F3_EVO    
     imu_register(&mpu6050.heir);
@@ -267,30 +269,30 @@ int main()
     // baro_register(&spl06_linux.heir);
 #endif    
     task_init();
-    sensor_init();
+    // sensor_init();
 
     // gyro_cal();
 
     fifo_test();
 
-    att_est_register(&att_est_q.heir);
+    // att_est_register(&att_est_q.heir);
     // att_est_register(&att_est_cf.heir);
 //    alt_est_register(&alt_est_3o.heir);
     // alt_est_register(&alt_est_inav.heir);
-    est_init();
+    // est_init();
 
-    variance_create(&baro_variance, 100);
+    // variance_create(&baro_variance, 100);
 
-    task_create("imu", 2000, task_imu);
+    // task_create("imu", 2000, task_imu);
 //    task_create("compass", (10000000 / 150), task_compass);
-    task_create("baro", 25000, task_baro);
-    task_create("att", 2000, task_att);
+    // task_create("baro", 25000, task_baro);
+    // task_create("att", 2000, task_att);
     // task_create("alt", 2*1000, task_alt);
 //    task_create("cmder", 2000, task_commander);
 //    task_create("nav", 2000, task_navigator);
-   task_create("link", 2*1000, task_link);
-//    task_create("cli", 100*1000, task_cli);
-   task_create("log", 10*1000, task_log);
+//    task_create("link", 2*1000, task_link);
+   task_create("cli", 100*1000, task_cli);
+//    task_create("log", 10*1000, task_log);
 
     while(1) {
 

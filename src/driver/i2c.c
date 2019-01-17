@@ -12,9 +12,9 @@
 
 static struct i2c_s i2c1 = {.inited = false};
 
-
 static void i2c_port1_init(void) 
 {
+#ifdef F3_EVO 
     GPIO_InitTypeDef GPIO_InitStructure;
 
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_I2C1, ENABLE);
@@ -32,8 +32,10 @@ static void i2c_port1_init(void)
     GPIO_Init(GPIOB, &GPIO_InitStructure);    
     GPIO_PinAFConfig(GPIOB, GPIO_PinSource6, GPIO_AF_4);
     GPIO_PinAFConfig(GPIOB, GPIO_PinSource7, GPIO_AF_4);    
+#endif    
 }
 
+#ifdef F3_EVO
 struct i2c_s* i2c_open(I2C_TypeDef* I2Cx)
 {
     struct i2c_s* s = NULL;
@@ -65,9 +67,11 @@ struct i2c_s* i2c_open(I2C_TypeDef* I2Cx)
 
     return s;
 }
+#endif
 
 int8_t i2c_write(struct i2c_s* i2c, uint8_t addr, uint8_t reg, uint8_t data)
 {
+#ifdef F3_EVO    
     addr <<= 1;
 
     /* Test on BUSY Flag */
@@ -127,10 +131,12 @@ int8_t i2c_write(struct i2c_s* i2c, uint8_t addr, uint8_t reg, uint8_t data)
     I2C_ClearFlag(i2c->I2Cx, I2C_ICR_STOPCF);
 
     return 0;
+#endif    
 }
 
 int8_t i2c_read(struct i2c_s* i2c, uint8_t addr_, uint8_t reg, uint8_t len, uint8_t* buf)
 {
+#ifdef F3_EVO    
     addr_ <<= 1;
 
     /* Test on BUSY Flag */
@@ -198,6 +204,7 @@ int8_t i2c_read(struct i2c_s* i2c, uint8_t addr_, uint8_t reg, uint8_t len, uint
 
     /* If all operations OK */
     return true;
+#endif    
 }
 
 

@@ -19,6 +19,7 @@ static struct spi_s spi2 = {.inited = false};
 
 static void spi_port2_init(void)
 {
+#ifdef F3_EVO    
     // Enable SPI clock
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_SPI2, ENABLE);
     RCC_APB1PeriphResetCmd(RCC_APB1Periph_SPI2, ENABLE);
@@ -36,8 +37,10 @@ static void spi_port2_init(void)
     GPIO_PinAFConfig(GPIOB, GPIO_PinSource13, GPIO_AF_5);
     GPIO_PinAFConfig(GPIOB, GPIO_PinSource14, GPIO_AF_5);  
     GPIO_PinAFConfig(GPIOB, GPIO_PinSource15, GPIO_AF_5);  
+#endif    
 }
 
+#ifdef F3_EVO
 struct spi_s* spi_open(SPI_TypeDef* SPIx)
 {
     struct spi_s* s = NULL;
@@ -75,10 +78,11 @@ struct spi_s* spi_open(SPI_TypeDef* SPIx)
 
     return s;    
 }
-
+#endif
 
 int8_t spi_transfer_byte(struct spi_s* spi, uint8_t* out, uint8_t in)
 {
+#ifdef F3_EVO    
     uint16_t spiTimeout = SPI_TIMEOUT;
 
     while (SPI_I2S_GetFlagStatus(spi->SPIx, SPI_I2S_FLAG_TXE) == RESET)
@@ -97,12 +101,13 @@ int8_t spi_transfer_byte(struct spi_s* spi, uint8_t* out, uint8_t in)
         *out = SPI_ReceiveData8(spi->SPIx);
     }
     return 0;
+#endif    
 }
-
 
 
 int8_t spi_transfer(struct spi_s* spi, uint8_t *out, const uint8_t *in, int len)
 {
+#ifdef F3_EVO    
     uint16_t spiTimeout = SPI_TIMEOUT;
 
     uint8_t b;
@@ -125,10 +130,12 @@ int8_t spi_transfer(struct spi_s* spi, uint8_t *out, const uint8_t *in, int len)
     }
 
     return 0;
+#endif    
 }
 
 void spi_set_divisor(struct spi_s* spi, uint16_t divisor)
 {
+#ifdef F3_EVO    
 #define BR_CLEAR_MASK 0xFFC7
 
     uint16_t tempRegister;
@@ -182,4 +189,5 @@ void spi_set_divisor(struct spi_s* spi, uint16_t divisor)
     spi->SPIx->CR1 = tempRegister;
 
     SPI_Cmd(spi->SPIx, ENABLE);
+#endif    
 }

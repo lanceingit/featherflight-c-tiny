@@ -2,5 +2,5 @@
 
 #include <stdarg.h>
 
-int eprintf(const char * fmt, ...);
-int evprintf(const char* fmt, va_list ap);
+int esprintf(char* buf, const char * fmt, ...);
+int evsprintf(char* buf, const char* fmt, va_list ap);

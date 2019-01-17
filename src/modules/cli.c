@@ -11,6 +11,8 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <fcntl.h>
+#elif SM701
+#include "serial.h"
 #endif
 
 #include "cli.h"
@@ -53,11 +55,21 @@ static uint8_t write_buffer[500];
 static int cli_socket_fd = -1;
 static struct sockaddr_in recv_addr;
 static int addr_len = 0;
+#elif SM701
+#define CLI_PORT_RX_FIFO_SIZE   200
+#define CLI_PORT_TX_FIFO_SIZE   200
+
+struct serial_s* cli_port;
+uint8_t cli_port_rx_fifo[CLI_PORT_RX_FIFO_SIZE];
+uint8_t cli_port_tx_fifo[CLI_PORT_TX_FIFO_SIZE];
 #endif
 
 void cli_device_init(void)
 {
 #ifdef F3_EVO
+#elif SM701
+    cli_port = serial_open(CLI_UART, 115200, cli_port_rx_fifo, CLI_PORT_RX_FIFO_SIZE
+                                            , cli_port_tx_fifo, CLI_PORT_TX_FIFO_SIZE);
 #elif LINUX     
 	int flag = 0;
 	struct sockaddr_in addr;
@@ -90,10 +102,19 @@ void cli_init(void)
     cli_regist("reboot", reboot_shell);
 }
 
-int cli_device_read(uint8_t* socket_buffer, uint16_t size)
+uint16_t cli_device_read(uint8_t* data, uint16_t size)
 {
 #ifdef F3_EVO
     return 0;    
+#elif SM701
+    uint16_t i;
+    for(i=0; i<size; i++) {
+        if(serial_read(cli_port, &data[i]) < 0)
+            break;
+    }
+
+    return i;
+
 #elif LINUX     
     int len = 0;
 
@@ -120,11 +141,12 @@ void cli_device_write(const char *format, ...)
 	int len;
 
 	va_start(args,format);
-//	len = vsprintf((char*)write_buffer, format, args);
-    len = evprintf(format, args);
+    len = evsprintf((char*)write_buffer, format, args);
 	va_end(args);
 
 #ifdef F3_EVO
+#elif SM701
+    serial_write(cli_port, write_buffer, len);
 #elif LINUX    
 	sendto(cli_socket_fd, write_buffer, len, 0, (struct sockaddr *)&recv_addr, addr_len);
 #endif    

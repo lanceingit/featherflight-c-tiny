@@ -44,6 +44,16 @@ void timer_init()
     TIM_ITConfig(TIM7, TIM_IT_Update, ENABLE);
     
     TIM_Cmd(TIM7, ENABLE);
+#elif SM701
+    am_hal_ctimer_config_single(2, AM_HAL_CTIMER_TIMERA,
+                                   AM_HAL_CTIMER_HFRC_3MHZ |
+                                   AM_HAL_CTIMER_FN_REPEAT |
+                                   AM_HAL_CTIMER_INT_ENABLE 
+                                   );
+
+    am_hal_ctimer_int_enable(AM_HAL_CTIMER_INT_TIMERA2);
+    am_hal_ctimer_period_set(2, AM_HAL_CTIMER_TIMERA, (2048/512 - 1), 0);
+
 #elif LINUX
     clock_gettime(CLOCK_MONOTONIC ,&boot_time);
 #endif    
