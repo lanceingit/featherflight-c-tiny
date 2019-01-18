@@ -169,7 +169,7 @@ int8_t fifo_read(struct fifo_s *fifo, uint8_t* c)
 
 bool fifo_is_empty(struct fifo_s *fifo)
 {
-    return (fifo->head == fifo->tail);
+    return (fifo->cnt == 0);
 }
 
 uint16_t fifo_get_count(struct fifo_s *fifo)

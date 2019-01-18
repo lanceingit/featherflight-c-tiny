@@ -54,6 +54,20 @@ void fifo_test(void)
     }
 }
 
+void printf_test()
+{
+//    PRINT("f:%03.8f\n", 5.1234);      
+//    PRINT("d:%d\n", -1234);   
+//    PRINT("d:%d\n", 5678);   
+//    PRINT("u:%d\n", 1234);   
+//    PRINT("x:%x\n", 0x1234);   
+//    PRINT("X:%X\n", 0x1234);   
+//    PRINT("lu:%lu\n", 2147483567);   
+//    PRINT("llu:%llu\n", 3147483567);   
+//    PRINT("ld:%ld\n", -2147483567);   
+//    PRINT("lld:%lld\n", 3147483567);   
+ 
+}
 
 #ifdef LINUX
 
@@ -130,6 +144,13 @@ int linux_create_thread(const char *name, int priority, int stack_size, void* en
 void task_cli(void)
 {
     cli_updata();
+}
+
+void task_second(void)
+{        
+    static uint8_t cnt=0;
+    cnt++;
+    // PRINT("now:%d\n", cnt);
 }
 
 // void task_imu(void)
@@ -260,6 +281,8 @@ int main()
 
     PRINT("hello feather flight\n");
 
+    printf_test();
+
 #ifdef F3_EVO    
     imu_register(&mpu6050.heir);
     baro_register(&ms5611.heir);
@@ -292,6 +315,7 @@ int main()
 //    task_create("nav", 2000, task_navigator);
 //    task_create("link", 2*1000, task_link);
    task_create("cli", 100*1000, task_cli);
+   task_create("tick", 1000*1000, task_second);
 //    task_create("log", 10*1000, task_log);
 
     while(1) {

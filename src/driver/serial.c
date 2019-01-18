@@ -153,7 +153,15 @@ bool serial_rx_int(struct serial_s* s)
 #ifdef F3_EVO    
     return (s->uart->ISR & USART_FLAG_RXNE);
 #elif SM701
-    return (AM_REGn(UART, s->uart, IES) & AM_HAL_UART_INT_RX);
+    if(AM_REGn(UART, s->uart, IES) & AM_REG_UART_IES_RXRIS_M) {
+        uint32_t dr = AM_REGn(UART, s->uart, DR);
+
+        if((dr & 0xF00) == 0) {
+            return true;
+        }
+    }
+
+    return false;    
 #endif    
 }
 
@@ -162,7 +170,7 @@ bool serial_tx_int(struct serial_s* s)
 #ifdef F3_EVO    
     return (s->uart->ISR & USART_FLAG_TXE);
 #elif SM701
-    return (AM_REGn(UART, s->uart, IES) & AM_HAL_UART_INT_TX);
+    return (AM_REGn(UART, s->uart, IES) & AM_REG_UART_IES_TXRIS_M); 
 #endif    
 }
 
@@ -199,8 +207,8 @@ void serial_write_ch(struct serial_s* s, unsigned char ch)
 
 void serial_write(struct serial_s* s, unsigned char* buf, uint16_t len) 
 {
+    serial_enable_tx_int(s);
     if(fifo_is_empty(&s->tx_fifo)) {
-        serial_enable_tx_int(s);
         for(uint16_t i=0; i<len-1; i++)
         {
             fifo_write_force(&s->tx_fifo, buf[1+i]);
@@ -253,5 +261,6 @@ void USART1_IRQHandler(void)
 void am_uart0_isr(void)
 {
     serial_IRQHandler(&serial[0]);
+    am_hal_uart_int_clear(0, 0xFFFFFFFF);
 }
 #endif
