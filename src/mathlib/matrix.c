@@ -216,7 +216,7 @@ int8_t matrix_qr(Matrix mt, Matrix* qm, Matrix* rm)
     // Form the matrix R of the QR-decomposition.
     //      R is supposed to be m x n, but only calculate n x n
     // copy the upper triangle of A
-    for (row = min-1; row >= 0; row--)
+    for (int8_t row = min-1; row >= 0; row--)
 	    for (col = row+1; col < n; col++)
 		    rm->data[row*rm->column + col] = mt.data[col*m + row];
 
@@ -235,7 +235,7 @@ int8_t matrix_qr(Matrix mt, Matrix* qm, Matrix* rm)
 	    for (minor = m-1; minor >= min; minor--)
 		    qm->data[minor*m + minor] = 1.0f;
 
-	    for (minor = min-1; minor >= 0; minor--) {
+	    for (int8_t minor = min-1; minor >= 0; minor--) {
 		    qm->data[minor * m + minor] = 1.0f;
 
 		    if (mt.data[minor*m + minor] != 0.0f) {
@@ -259,7 +259,6 @@ int8_t matrix_qr(Matrix mt, Matrix* qm, Matrix* rm)
 
 void matrix_div_qr(Matrix *X, Matrix *A, Matrix *B, Matrix *Q, Matrix *R, Matrix *AQ)
 {
-    uint8_t i, j, k;
     uint8_t m, n;
 
     // this is messy (going into a class's private data structure),
@@ -278,9 +277,9 @@ void matrix_div_qr(Matrix *X, Matrix *A, Matrix *B, Matrix *Q, Matrix *R, Matrix
     *AQ = matrix_mul(*A, *Q);
 
     // solve for X by backsubstitution
-    for (i = 0; i < m; i++) {
-        for (j = n-1; j >= 0; j--) {
-            for (k = j+1; k < n; k++)
+    for (uint8_t i = 0; i < m; i++) {
+        for (int8_t j = n-1; j >= 0; j--) {
+            for (uint8_t k = j+1; k < n; k++)
                 AQ->data[i*n + j] -= R->data[j*n + k] * X->data[i*n + k];
             X->data[i*n + j] = AQ->data[i*n + j] / R->data[j*n + j];
         }

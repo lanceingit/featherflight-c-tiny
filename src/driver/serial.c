@@ -3,7 +3,7 @@
 #include "serial.h"
 
 
-static struct serial_s serial1 = {.inited=false};
+static serial_s serial1 = {.inited=false};
 
 
 static void serial_port1_init(void) 
@@ -33,97 +33,97 @@ static void serial_port1_init(void)
     NVIC_Init(&NVIC_InitStruct);
 }
 
-struct serial_s* serial_open(USART_TypeDef *USARTx, uint32_t baud, uint8_t* rxbuf, uint16_t rxbuf_size, uint8_t* txbuf, uint16_t txbuf_size)
+serial_s* serial_open(USART_TypeDef *USARTx, uint32_t baud, uint8_t* rxbuf, uint16_t rxbuf_size, uint8_t* txbuf, uint16_t txbuf_size)
 {
-    struct serial_s* s = NULL;
+    serial_s* self = NULL;
     USART_InitTypeDef USART_InitStructure;
     
     if (USARTx == USART1) {
-        s = &serial1;
-        if(s->inited) return s;
+        self = &serial1;
+        if(self->inited) return self;
 		serial_port1_init();
     } else {
         return NULL;
     }
     
-    s->USARTx = USARTx;
-    s->baud = baud;
-    s->rxbuf_size = rxbuf_size;
-    s->rxbuf = rxbuf;
-    s->txbuf_size = txbuf_size;
-    s->txbuf = txbuf;
+    self->USARTx = USARTx;
+    self->baud = baud;
+    self->rxbuf_size = rxbuf_size;
+    self->rxbuf = rxbuf;
+    self->txbuf_size = txbuf_size;
+    self->txbuf = txbuf;
     
-    fifo_create(&s->rx_fifo, rxbuf, rxbuf_size);
-    fifo_create(&s->tx_fifo, txbuf, txbuf_size);
+    fifo_create(&self->rx_fifo, rxbuf, rxbuf_size);
+    fifo_create(&self->tx_fifo, txbuf, txbuf_size);
 
 
     // reduce oversampling to allow for higher baud rates
-    USART_OverSampling8Cmd(s->USARTx, ENABLE);
+    USART_OverSampling8Cmd(self->USARTx, ENABLE);
 	
     USART_StructInit(&USART_InitStructure);
-    USART_InitStructure.USART_BaudRate = s->baud;
+    USART_InitStructure.USART_BaudRate = self->baud;
     USART_InitStructure.USART_WordLength = USART_WordLength_8b;
     USART_InitStructure.USART_StopBits = USART_StopBits_1;
     USART_InitStructure.USART_Parity = USART_Parity_No;
     USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
     USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
-    USART_Init(s->USARTx, &USART_InitStructure);
+    USART_Init(self->USARTx, &USART_InitStructure);
 
-    USART_Cmd(s->USARTx, ENABLE);    
+    USART_Cmd(self->USARTx, ENABLE);    
 		
     USART_ITConfig(USARTx, USART_IT_RXNE, ENABLE);
 	USART_ITConfig(USARTx, USART_IT_TXE, ENABLE);
     
-    s->inited = true;
+    self->inited = true;
 
-    return s;
+    return self;
 }
 
-void serial_write_ch(struct serial_s* s, unsigned char ch) 
+void serial_write_ch(serial_s* self, unsigned char ch) 
 {
-    fifo_write_force(&s->tx_fifo, ch);
+    fifo_write_force(&self->tx_fifo, ch);
 
-    USART_ITConfig(s->USARTx, USART_IT_TXE, ENABLE);
+    USART_ITConfig(self->USARTx, USART_IT_TXE, ENABLE);
 }
 
-void serial_write(struct serial_s* s, unsigned char* buf, uint16_t len) 
+void serial_write(serial_s* self, unsigned char* buf, uint16_t len) 
 {
     for(uint16_t i=0; i<len; i++)
     {
-        fifo_write_force(&s->tx_fifo, buf[i]);
+        fifo_write_force(&self->tx_fifo, buf[i]);
     }
 
-    USART_ITConfig(s->USARTx, USART_IT_TXE, ENABLE);
+    USART_ITConfig(self->USARTx, USART_IT_TXE, ENABLE);
 }
 
-bool serial_available(struct serial_s* s) 
+bool serial_available(serial_s* self) 
 {
-	return !fifo_is_empty(&s->rx_fifo);
+	return !fifo_is_empty(&self->rx_fifo);
 }
 
-int8_t serial_read(struct serial_s* s, uint8_t* ch) 
+int8_t serial_read(serial_s* self, uint8_t* ch) 
 {
-    return fifo_read(&s->rx_fifo, ch);
+    return fifo_read(&self->rx_fifo, ch);
 }
 
 
 //
 // Interrupt handlers
 //
-static void serial_IRQHandler(struct serial_s* s) 
+static void serial_IRQHandler(serial_s* self) 
 {
-    uint16_t SR = s->USARTx->ISR;
+    uint16_t SR = self->USARTx->ISR;
 	
     if (SR & USART_FLAG_RXNE) {
-        fifo_write_force(&s->rx_fifo, s->USARTx->RDR);
+        fifo_write_force(&self->rx_fifo, self->USARTx->RDR);
     }
 
     if (SR & USART_FLAG_TXE) {
         uint8_t ch;
-        if(fifo_read(&s->tx_fifo, &ch) == 0) {
-            s->USARTx->TDR = ch;
+        if(fifo_read(&self->tx_fifo, &ch) == 0) {
+            self->USARTx->TDR = ch;
         } else {   // EOT
-            USART_ITConfig(s->USARTx, USART_IT_TXE, DISABLE);
+            USART_ITConfig(self->USARTx, USART_IT_TXE, DISABLE);
         }
     }
 }

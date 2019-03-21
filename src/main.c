@@ -36,7 +36,7 @@ float baro_vel;
 
 void fifo_test(void)
 {
-    struct fifo_s f;
+    fifo_s f;
     uint8_t buf[10];
     uint8_t i,j;
     uint8_t tmp=0;

@@ -6,9 +6,9 @@
 #include "debug.h"
 #include "lpf.h"
 
-struct imu_s* imu;
-struct compass_s* compass;
-struct baro_s* baro;
+imu_s* imu;
+compass_s* compass;
+baro_s* baro;
 
 void imu_gyro_cal(void)         
 {
@@ -76,7 +76,7 @@ void imu_gyro_cal(void)
 	}
 }
 
-void imu_register(struct imu_s* item)
+void imu_register(imu_s* item)
 {
     imu = item;
 }
@@ -106,7 +106,7 @@ void imu_update(void)
 	imu->is_update = true;
 }
 
-void compass_register(struct compass_s* item)
+void compass_register(compass_s* item)
 {
     compass = item;	
 }
@@ -116,7 +116,7 @@ void compass_update(void)
 	compass->update();
 }
 
-void baro_register(struct baro_s* item)
+void baro_register(baro_s* item)
 {
     baro = item;		
 }

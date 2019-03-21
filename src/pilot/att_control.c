@@ -6,13 +6,13 @@
 #include "attc_param.h"
 
 
-struct pid_s att_pid_roll;
-struct pid_s att_pid_pitch;
-struct pid_s att_pid_yaw;
+pid_s att_pid_roll;
+pid_s att_pid_pitch;
+pid_s att_pid_yaw;
 
-struct pid_s rate_pid_roll;
-struct pid_s rate_pid_pitch;
-struct pid_s rate_pid_yaw;
+pid_s rate_pid_roll;
+pid_s rate_pid_pitch;
+pid_s rate_pid_yaw;
 
 
 void att_control_init(void)

@@ -113,7 +113,7 @@ enum accel_fsr_e {
 	NUM_ACCEL_FSR
 };
 
-struct mpu6050_s mpu6050 = {
+mpu6050_s mpu6050 = {
 	.heir = {
 		.init = &mpu6050_init,
 		.update = &mpu6050_update,
@@ -121,7 +121,7 @@ struct mpu6050_s mpu6050 = {
 	},
 };
 
-static struct mpu6050_s* this=&mpu6050;
+static mpu6050_s* this=&mpu6050;
 
 
 bool mpu6050_init(void)

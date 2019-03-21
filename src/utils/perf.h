@@ -2,7 +2,7 @@
 
 #include "timer.h"
 
-#define PERF_DEF(name) static struct perf_s name = { \
+#define PERF_DEF(name) static perf_s name = { \
     .t0 = 0, \
     .t1 = 0, \
     .cnt = 0, \
@@ -12,7 +12,7 @@
     .t_min = 0xFFFFFFFF, \
 };
 
-struct perf_s
+typedef struct
 {
     times_t t0;
     times_t t1;
@@ -21,11 +21,11 @@ struct perf_s
     times_t sum;
     times_t t_max;
     times_t t_min;
-};
+} perf_s;
 
-void perf_init(struct perf_s* perf);
-void perf_interval(struct perf_s* perf);
-void perf_begin(struct perf_s* perf);
-void perf_end(struct perf_s* perf);
-void perf_print(struct perf_s* perf, char* name);
+void perf_init(perf_s* self);
+void perf_interval(perf_s* self);
+void perf_begin(perf_s* self);
+void perf_end(perf_s* self);
+void perf_print(perf_s* self, char* name);
 

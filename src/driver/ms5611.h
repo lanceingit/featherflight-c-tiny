@@ -19,19 +19,19 @@ union prom_u {
 	struct prom_s s;
 };
 
-struct ms5611_s 
+typedef struct
 {
-    struct baro_s heir;
+    baro_s heir;
     union prom_u prom_buf;
     uint8_t measure_phase;
     uint8_t collect_phase;
     int32_t TEMP;
     int32_t OFF;
     int32_t SENS;    
-	struct i2c_s* i2c;
-}; 
+	i2c_s* i2c;
+} ms5611_s; 
 
-extern struct ms5611_s ms5611;
+extern ms5611_s ms5611;
 
 bool ms5611_init(void);
 void ms5611_update(void);

@@ -1,6 +1,6 @@
 #pragma once
 
-struct pid_s
+typedef struct
 {
 	float kp;           
 	float ki;           
@@ -14,8 +14,8 @@ struct pid_s
     float i_limit;
     float out_limit;
     float d_weight;
-};
+} pid_s;
 
-void pid_init(struct pid_s* pid, float p,float i,float d, float i_limit, float out_limit, float d_weight);
-void pid_reset(struct pid_s* pid);
-float pid_update(struct pid_s* pid, float error, float dt);
+void pid_init(pid_s* self, float p,float i,float d, float i_limit, float out_limit, float d_weight);
+void pid_reset(pid_s* self);
+float pid_update(pid_s* self, float error, float dt);

@@ -46,14 +46,14 @@
 
 
 
-struct ms5611_s ms5611 = {
+ms5611_s ms5611 = {
 	.heir = {
 		.init = &ms5611_init,
 		.update = &ms5611_update,
 	},
 };
 
-static struct ms5611_s* this=&ms5611;
+static ms5611_s* this=&ms5611;
 
 static bool ms5611_read_prom(void);
 static int8_t ms5611_crc(uint16_t *prom);

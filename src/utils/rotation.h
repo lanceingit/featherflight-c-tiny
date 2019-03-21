@@ -5,7 +5,8 @@
  * Enum for board and external compass rotations.
  * This enum maps from board attitude to airframe attitude.
  */
-enum Rotation {
+typedef enum
+{
 	ROTATION_NONE                = 0,
 	ROTATION_YAW_45              = 1,
 	ROTATION_YAW_90              = 2,
@@ -40,10 +41,10 @@ enum Rotation {
 	ROTATION_PITCH_90_ROLL_270	 = 31,
 	ROTATION_PITCH_9_YAW_180 = 32,
 	ROTATION_MAX
-};
+} rotation_e;
 
 /**
  * rotate a 3 element float vector in-place
  */
-void rotate_3f(enum Rotation rot, float* x, float* y, float* z);
+void rotate_3f(rotation_e rot, float* x, float* y, float* z);
 

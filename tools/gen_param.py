@@ -183,7 +183,7 @@ except:
     param_change=True    
 
 
-param_change=True    
+#param_change=True    
 if param_change==True:  
     for i in files(path+"src/param", "param_gen_*.h"):
         #print i

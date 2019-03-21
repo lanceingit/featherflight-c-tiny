@@ -6,8 +6,8 @@
 #include "commander.h"
 #include <math.h>
 
-struct pid_s alt_vel_pid;
-struct pid_s alt_pos_pid;
+pid_s alt_vel_pid;
+pid_s alt_pos_pid;
 
 static float alt_target;
 

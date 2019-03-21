@@ -6,22 +6,22 @@
 
 #define TRIGGER_DEF(name) static struct trigger_s name;
 
-struct trigger_s
+typedef struct
 {
     bool last_status;
-};
+} trigger_s;
 
-static inline uint8_t trigger_check(struct trigger_s* trigger, bool status)
+static inline uint8_t trigger_check(trigger_s* self, bool status)
 {
-    if(status != trigger->last_status) {
-        trigger->last_status = status;
+    if(status != self->last_status) {
+        self->last_status = status;
         if(status == true) {
             return TRIGGER_0_TO_1;
         } else {
             return TRIGGER_1_TO_0;
         }
     } else {
-        trigger->last_status = status;
+        self->last_status = status;
         return TRIGGER_STABLE;
     }
 }

@@ -50,9 +50,9 @@ static int8_t spi_flash_writeEnable(void);
 static uint8_t spi_flash_readStatus(void);
 static int8_t spi_flash_readIdentification(void);
 
-struct spi_flash_s spi_flash;
+spi_flash_s spi_flash;
 
-static struct spi_flash_s* this=&spi_flash;
+static spi_flash_s* this=&spi_flash;
 
 /**
  * Initialize the driver, must be called before any other routines.
@@ -364,7 +364,7 @@ int spi_flash_readBytes(uint32_t address, uint8_t *buffer, int length)
  *
  * Can be called before calling m25p16_init() (the result would have totalSize = 0).
  */
-struct spi_flash_s* spi_flash_getGeometry()
+spi_flash_s* spi_flash_getGeometry()
 {
     return this;
 }

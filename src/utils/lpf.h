@@ -1,12 +1,12 @@
 #pragma once
 
-struct lpf1p_s 
+typedef struct 
 {
     float state;
     float k;
-};
+} lpf1p_s;
 
-struct lpf2p_s
+typedef struct
 {
     float cutoff_freq;
     float a1;
@@ -16,15 +16,15 @@ struct lpf2p_s
     float b2;
     float delay_element_1;        // buffered sample -1
     float delay_element_2;        // buffered sample -2
-};
+} lpf2p_s;
 
 
-void lpf2p_init(struct lpf2p_s* filter, float sample_freq, float cutoff_freq);
-float lpf2p_reset(struct lpf2p_s* filter, float sample);
-float lpf2p_apply(struct lpf2p_s* filter, float sample);
+void lpf2p_init(lpf2p_s* self, float sample_freq, float cutoff_freq);
+float lpf2p_reset(lpf2p_s* self, float sample);
+float lpf2p_apply(lpf2p_s* self, float sample);
 
-void lpf1p_init(struct lpf1p_s* filter, float sample_freq, float cutoff_freq);
-float lpf1p_apply(struct lpf1p_s* filter, float sample);
+void lpf1p_init(lpf1p_s* self, float sample_freq, float cutoff_freq);
+float lpf1p_apply(lpf1p_s* self, float sample);
 
 float lpfrc_apply(float last, float in, float k);
 

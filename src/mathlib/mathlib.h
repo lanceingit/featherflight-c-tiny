@@ -29,9 +29,9 @@ struct variance_s
 	float sum;
 	float sum_sq;
 	uint8_t size;
-	struct fifo_f_s fifo;
+	fifo_f_s fifo;
 	float data[100];
-	struct fifo_f_s fifo_sq;
+	fifo_f_s fifo_sq;
 	float data_sq[100];
 };
 

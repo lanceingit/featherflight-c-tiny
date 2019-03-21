@@ -16,9 +16,9 @@ struct flashGeometry_s
     uint32_t totalSize;  // This is just sectorSize * sectors
 };
 
-struct spi_flash_s 
+typedef struct 
 {
-    struct spi_s* spi;
+    spi_s* spi;
     uint16_t sectors; // Count of the number of erasable blocks on the device
 
     uint16_t pagesPerSector;
@@ -27,7 +27,7 @@ struct spi_flash_s
     uint32_t sectorSize; // This is just pagesPerSector * pageSize
 
     uint32_t totalSize;  // This is just sectorSize * sectors    
-};
+} spi_flash_s;
 
 
 
@@ -47,6 +47,6 @@ int spi_flash_readBytes(uint32_t address, uint8_t *buffer, int length);
 bool spi_flash_isReady(void);
 bool spi_flash_waitForReady(uint32_t timeoutMillis);
 
-struct spi_flash_s* spi_flash_getGeometry(void);
+spi_flash_s* spi_flash_getGeometry(void);
 
 

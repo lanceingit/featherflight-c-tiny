@@ -18,14 +18,14 @@
 #define HMC_POS_BIAS 1
 #define HMC_NEG_BIAS 2
 
-struct hmc5883_s hmc5883 = {
+hmc5883_s hmc5883 = {
 	.heir = {
 		.init = &hmc5883_init,
 		.update = &hmc5883_update,
 	},
 };
 
-static struct hmc5883_s* this=&hmc5883;
+static hmc5883_s* this=&hmc5883;
 
 
 

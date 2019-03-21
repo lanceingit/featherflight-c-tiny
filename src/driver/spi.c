@@ -14,7 +14,7 @@ typedef enum {
 	SPI_CLOCK_ULTRAFAST     = 2,   //18.00000 MHz
 } SPIClockDivider_e;
 
-static struct spi_s spi2 = {.inited = false};
+static spi_s spi2 = {.inited = false};
 
 
 static void spi_port2_init(void)
@@ -38,20 +38,20 @@ static void spi_port2_init(void)
     GPIO_PinAFConfig(GPIOB, GPIO_PinSource15, GPIO_AF_5);  
 }
 
-struct spi_s* spi_open(SPI_TypeDef* SPIx)
+spi_s* spi_open(SPI_TypeDef* SPIx)
 {
-    struct spi_s* s = NULL;
+    spi_s* self = NULL;
     SPI_InitTypeDef SPI_InitStructure;
     
     if (SPIx == SPI2) {
-        s = &spi2;
-        if(s->inited) return s;
+        self = &spi2;
+        if(self->inited) return self;
 		spi_port2_init();
     } else {
         return NULL;
     }
 
-    s->SPIx = SPIx;    
+    self->SPIx = SPIx;    
 
     // Init SPI hardware
     SPI_I2S_DeInit(SPIx);
@@ -71,55 +71,55 @@ struct spi_s* spi_open(SPI_TypeDef* SPIx)
     SPI_Init(SPIx, &SPI_InitStructure);
     SPI_Cmd(SPIx, ENABLE);
 
-    s->inited = true;
+    self->inited = true;
 
-    return s;    
+    return self;    
 }
 
 
-int8_t spi_transfer_byte(struct spi_s* spi, uint8_t* out, uint8_t in)
+int8_t spi_transfer_byte(spi_s* self, uint8_t* out, uint8_t in)
 {
     uint16_t spiTimeout = SPI_TIMEOUT;
 
-    while (SPI_I2S_GetFlagStatus(spi->SPIx, SPI_I2S_FLAG_TXE) == RESET)
+    while (SPI_I2S_GetFlagStatus(self->SPIx, SPI_I2S_FLAG_TXE) == RESET)
         if ((spiTimeout--) == 0)
             return -1;
 
     SPI_SendData8(SPI2, in);
 
     spiTimeout = SPI_TIMEOUT;
-    while (SPI_I2S_GetFlagStatus(spi->SPIx, SPI_I2S_FLAG_RXNE) == RESET)
+    while (SPI_I2S_GetFlagStatus(self->SPIx, SPI_I2S_FLAG_RXNE) == RESET)
         if ((spiTimeout--) == 0)
             return -1;
 
     if(out != NULL)
     {
-        *out = SPI_ReceiveData8(spi->SPIx);
+        *out = SPI_ReceiveData8(self->SPIx);
     }
     return 0;
 }
 
 
 
-int8_t spi_transfer(struct spi_s* spi, uint8_t *out, const uint8_t *in, int len)
+int8_t spi_transfer(spi_s* self, uint8_t *out, const uint8_t *in, int len)
 {
     uint16_t spiTimeout = SPI_TIMEOUT;
 
     uint8_t b;
-    spi->SPIx->DR;
+    self->SPIx->DR;
     while (len--) {
         b = in ? *(in++) : 0xFF;
-        while (SPI_I2S_GetFlagStatus(spi->SPIx, SPI_I2S_FLAG_TXE) == RESET) {
+        while (SPI_I2S_GetFlagStatus(self->SPIx, SPI_I2S_FLAG_TXE) == RESET) {
             if ((spiTimeout--) == 0)
                 return -1;
         }
-        SPI_SendData8(spi->SPIx, b);
+        SPI_SendData8(self->SPIx, b);
         spiTimeout = 1000;
-        while (SPI_I2S_GetFlagStatus(spi->SPIx, SPI_I2S_FLAG_RXNE) == RESET) {
+        while (SPI_I2S_GetFlagStatus(self->SPIx, SPI_I2S_FLAG_RXNE) == RESET) {
             if ((spiTimeout--) == 0)
                 return -1;
         }
-        b = SPI_ReceiveData8(spi->SPIx);
+        b = SPI_ReceiveData8(self->SPIx);
         if (out)
             *(out++) = b;
     }
@@ -127,15 +127,15 @@ int8_t spi_transfer(struct spi_s* spi, uint8_t *out, const uint8_t *in, int len)
     return 0;
 }
 
-void spi_set_divisor(struct spi_s* spi, uint16_t divisor)
+void spi_set_divisor(spi_s* self, uint16_t divisor)
 {
 #define BR_CLEAR_MASK 0xFFC7
 
     uint16_t tempRegister;
 
-    SPI_Cmd(spi->SPIx, DISABLE);
+    SPI_Cmd(self->SPIx, DISABLE);
 
-    tempRegister = spi->SPIx->CR1;
+    tempRegister = self->SPIx->CR1;
 
     switch (divisor) {
     case 2:
@@ -179,7 +179,7 @@ void spi_set_divisor(struct spi_s* spi, uint16_t divisor)
         break;
     }
 
-    spi->SPIx->CR1 = tempRegister;
+    self->SPIx->CR1 = tempRegister;
 
-    SPI_Cmd(spi->SPIx, ENABLE);
+    SPI_Cmd(self->SPIx, ENABLE);
 }

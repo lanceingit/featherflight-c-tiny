@@ -6,7 +6,7 @@
 #include "func_type.h"
 
 
-struct imu_s
+typedef struct
 {
     //member
     bool ready;    
@@ -18,21 +18,21 @@ struct imu_s
     bool gyro_need_cal;
     float temp;
 
-	struct lpf2p_s	acc_filter_x;
-	struct lpf2p_s	acc_filter_y;
-	struct lpf2p_s	acc_filter_z;
-	struct lpf2p_s	gyro_filter_x;
-	struct lpf2p_s	gyro_filter_y;
-	struct lpf2p_s	gyro_filter_z;
+	lpf2p_s	acc_filter_x;
+	lpf2p_s	acc_filter_y;
+	lpf2p_s	acc_filter_z;
+	lpf2p_s	gyro_filter_x;
+	lpf2p_s	gyro_filter_y;
+	lpf2p_s	gyro_filter_z;
 
-    enum Rotation rotation;
+    rotation_e rotation;
 
     //method
     init_func* init;
     imu_update_func* update;
-};
+} imu_s;
 
-struct compass_s
+typedef struct
 {
     //member
     Vector mag;
@@ -40,9 +40,9 @@ struct compass_s
     //method
     init_func* init;
     update_func* update;
-};
+} compass_s;
 
-struct baro_s
+typedef struct
 {
     //member
     float temperature;
@@ -53,19 +53,19 @@ struct baro_s
     //method
     init_func* init;
     update_func* update;     
-};
+} baro_s;
 
-extern struct imu_s* imu;
-extern struct compass_s* compass;
-extern struct baro_s* baro;
+extern imu_s* imu;
+extern compass_s* compass;
+extern baro_s* baro;
 
-void imu_register(struct imu_s* item);
+void imu_register(imu_s* item);
 void imu_update(void);
 
-void compass_register(struct compass_s* item);
+void compass_register(compass_s* item);
 void compass_update(void);
 
-void baro_register(struct baro_s* item);
+void baro_register(baro_s* item);
 void baro_update(void);
 
 void sensor_init(void);

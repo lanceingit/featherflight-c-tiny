@@ -27,7 +27,7 @@
 
 uint8_t sendbuf[300];
 #ifdef F3_EVO
-struct serial_s * _port;
+serial_s * _port;
 #elif LINUX
 #define UDP_PORT  14550
 #define UDP_IP    "192.168.100.255"

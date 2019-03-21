@@ -4,7 +4,7 @@
 
 #define USE_COMPLEX_ROT  0
 
-void rotate_3f(enum Rotation rot, float* x_in, float* y_in, float* z_in)
+void rotate_3f(rotation_e rot, float* x_in, float* y_in, float* z_in)
 {
 	float tmp;
 	float x = *x_in;
