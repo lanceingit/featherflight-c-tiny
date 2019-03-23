@@ -2,17 +2,17 @@
 
 #include "est.h"
 
-struct att_est_cf_s
+typedef struct
 {
-    struct att_est_s heir;
+    AttEst heir;
 
     float dcm[3][3];
 
     float kp;
     float ki;
-};
+} AttEstCf;
 
-extern struct att_est_cf_s att_est_cf;
+extern AttEstCf att_est_cf;
 
 bool att_est_cf_init(void);
 bool att_est_cf_run(float dt);

@@ -15,7 +15,7 @@
 
 #define USE_MODIFY_FIFO         0
 
-void fifo_f_create(fifo_f_s *self, float *buf, uint16_t size)
+void fifo_f_create(FifoF *self, float *buf, uint16_t size)
 {
     self->head = 0;
     self->tail = 0;
@@ -24,7 +24,7 @@ void fifo_f_create(fifo_f_s *self, float *buf, uint16_t size)
     self->cnt = 0;
 }
 
-int8_t fifo_f_write(fifo_f_s *self, float c)
+int8_t fifo_f_write(FifoF *self, float c)
 {
     if(self->cnt == self->size)
     {
@@ -45,7 +45,7 @@ int8_t fifo_f_write(fifo_f_s *self, float c)
     return 0;
 }
 
-void fifo_f_write_force(fifo_f_s *self, float c)
+void fifo_f_write_force(FifoF *self, float c)
 {  
     self->data[self->head] = c;
     self->head++;
@@ -63,7 +63,7 @@ void fifo_f_write_force(fifo_f_s *self, float c)
     }
 }
 
-int8_t fifo_f_read(fifo_f_s *self, float* c)
+int8_t fifo_f_read(FifoF *self, float* c)
 {
     if(self->cnt == 0)
     {
@@ -81,19 +81,19 @@ int8_t fifo_f_read(fifo_f_s *self, float* c)
     return 0;
 }
 
-bool fifo_f_is_empty(fifo_f_s *self)
+bool fifo_f_is_empty(FifoF *self)
 {
     return (self->head == self->tail);
 }
 
-uint16_t fifo_f_get_count(fifo_f_s *self)
+uint16_t fifo_f_get_count(FifoF *self)
 {
 	return self->cnt;
 }
 
 /**********************/
 
-void fifo_create(fifo_s *self, uint8_t *buf, uint16_t size)
+void fifo_create(Fifo *self, uint8_t *buf, uint16_t size)
 {
     self->head = 0;
     self->tail = 0;
@@ -102,7 +102,7 @@ void fifo_create(fifo_s *self, uint8_t *buf, uint16_t size)
     self->cnt = 0;
 }
 
-int8_t fifo_write(fifo_s *self, uint8_t c)
+int8_t fifo_write(Fifo *self, uint8_t c)
 {
     // PRINT("fifo_write");
     // fifo_print(fifo);
@@ -126,7 +126,7 @@ int8_t fifo_write(fifo_s *self, uint8_t c)
     return 0;
 }
 
-void fifo_write_force(fifo_s *self, uint8_t c)
+void fifo_write_force(Fifo *self, uint8_t c)
 {  
     self->data[self->head] = c;
     self->head++;
@@ -145,7 +145,7 @@ void fifo_write_force(fifo_s *self, uint8_t c)
 
 }
 
-int8_t fifo_read(fifo_s *self, uint8_t* c)
+int8_t fifo_read(Fifo *self, uint8_t* c)
 {
     // PRINT("fifo_read");
     // fifo_print(fifo);
@@ -167,28 +167,28 @@ int8_t fifo_read(fifo_s *self, uint8_t* c)
     return 0;
 }
 
-bool fifo_is_empty(fifo_s *self)
+bool fifo_is_empty(Fifo *self)
 {
     return (self->head == self->tail);
 }
 
-uint16_t fifo_get_count(fifo_s *self)
+uint16_t fifo_get_count(Fifo *self)
 {
 	return self->cnt;
 }
 
 #if USE_MODIFY_FIFO
-uint16_t fifo_get_tail_index(fifo_s *self)
+uint16_t fifo_get_tail_index(Fifo *self)
 {
     return self->tail;
 }
 
-void fifo_set_tail_index(fifo_s *self, uint16_t new_index)
+void fifo_set_tail_index(Fifo *self, uint16_t new_index)
 {
     self->tail = new_index;
 }
 
-uint8_t* fifo_get_tail(fifo_s *self)
+uint8_t* fifo_get_tail(Fifo *self)
 {
     return self->data+self->tail;
 }
@@ -199,7 +199,7 @@ uint8_t* fifo_get_tail(fifo_s *self)
 #define IS_BEYOND_HEAD(x)   (((x)>self->head && (x)<self->tail && IS_TAIL_FRONT_HEAD) \
                           || ((x)>self->head && (x)>self->tail && IS_TAIL_BEHAND_HEAD))
 
-void fifo_set_tail(fifo_s *self, uint8_t* new_tail)
+void fifo_set_tail(Fifo *self, uint8_t* new_tail)
 {
     uint16_t new_index;
 
@@ -239,7 +239,7 @@ void fifo_set_tail(fifo_s *self, uint8_t* new_tail)
 
 #endif //USE_MODIFY_FIFO
 
-void fifo_print(fifo_s *self)
+void fifo_print(Fifo *self)
 {
     PRINT("-------fifo--------\n");
     PRINT("addr:%p\n", self);

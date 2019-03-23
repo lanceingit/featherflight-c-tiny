@@ -4,7 +4,7 @@
 
 struct alt_est_inav_s
 {
-	struct alt_est_s heir;    
+	AltEst heir;    
     float w_pos;
     float w_vel;
     float w_bias;

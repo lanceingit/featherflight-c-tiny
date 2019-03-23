@@ -121,18 +121,18 @@ float press2alt(float p)
 	return 44330 * (1 - powerf(((float)p / (float)1013.25),(1/5.255)));  //FIXME:
 }
 
-void variance_create(struct variance_s* v, uint8_t size)
+void variance_create(Variance* self, uint8_t size)
 {
-	v->size = size;
-	for(uint8_t i=0; i<v->size; i++) {
-		v->data[i] = 0.0f;
-		v->data_sq[i] = 0.0f;
+	self->size = size;
+	for(uint8_t i=0; i<self->size; i++) {
+		self->data[i] = 0.0f;
+		self->data_sq[i] = 0.0f;
 	}
-	fifo_f_create(&v->fifo, v->data, v->size);
-	fifo_f_create(&v->fifo_sq, v->data_sq, v->size);
+	fifo_f_create(&self->fifo, self->data, self->size);
+	fifo_f_create(&self->fifo_sq, self->data_sq, self->size);
 }
 
-float variance_cal(struct variance_s* v, float val)
+float variance_cal(Variance* self, float val)
 {
 	float tmp;
 	float avg;
@@ -142,22 +142,22 @@ float variance_cal(struct variance_s* v, float val)
 	float variance = 0.0f;
 
 	sq = POW2(val);
-	if(fifo_f_get_count(&v->fifo) < v->size-1) {
-		v->sum += val;
-		v->sum_sq += sq;
+	if(fifo_f_get_count(&self->fifo) < self->size-1) {
+		self->sum += val;
+		self->sum_sq += sq;
 	} else {
-		fifo_f_read(&v->fifo, &tmp);
-		v->sum = v->sum - tmp + val;
-		avg = v->sum / v->size;
+		fifo_f_read(&self->fifo, &tmp);
+		self->sum = self->sum - tmp + val;
+		avg = self->sum / self->size;
 
-		fifo_f_read(&v->fifo_sq, &tmp);
-		v->sum_sq = v->sum_sq - tmp + sq;
-		s2 = 2 * avg * v->sum;
-		s3 = v->size * POW2(avg);
-		variance = (v->sum_sq - s2 + s3)/v->size; 
+		fifo_f_read(&self->fifo_sq, &tmp);
+		self->sum_sq = self->sum_sq - tmp + sq;
+		s2 = 2 * avg * self->sum;
+		s3 = self->size * POW2(avg);
+		variance = (self->sum_sq - s2 + s3)/self->size; 
 	}
-	fifo_f_write_force(&v->fifo, val);
-	fifo_f_write_force(&v->fifo_sq, sq);
+	fifo_f_write_force(&self->fifo, val);
+	fifo_f_write_force(&self->fifo_sq, sq);
 
 	return variance;
 }

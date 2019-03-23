@@ -6,13 +6,13 @@
 #include "attc_param.h"
 
 
-pid_s att_pid_roll;
-pid_s att_pid_pitch;
-pid_s att_pid_yaw;
+Pid att_pid_roll;
+Pid att_pid_pitch;
+Pid att_pid_yaw;
 
-pid_s rate_pid_roll;
-pid_s rate_pid_pitch;
-pid_s rate_pid_yaw;
+Pid rate_pid_roll;
+Pid rate_pid_pitch;
+Pid rate_pid_yaw;
 
 
 void att_control_init(void)
@@ -50,8 +50,8 @@ void att_control_roll_pitch_rate_update(float dt, float roll_rate_target, float 
 	roll_rate_target = constrain(roll_rate_target, -limit, limit);
 	pitch_rate_target = constrain(pitch_rate_target, -limit, limit);
 
-	roll_output = pid_update(&rate_pid_roll, roll_rate_target-att->roll_rate, dt);
-	pitch_output = pid_update(&rate_pid_pitch, pitch_rate_target-att->pitch_rate, dt);
+	roll_output = pid_update(&rate_pid_roll, roll_rate_target-EST_ROLL_RATE, dt);
+	pitch_output = pid_update(&rate_pid_pitch, pitch_rate_target-EST_PITCH_RATE, dt);
 
 	mixer_set_roll(roll_output);
 	mixer_set_pitch(pitch_output);       
@@ -65,8 +65,8 @@ void att_control_roll_pitch_update(float dt, float roll_target, float pitch_targ
 	roll_target = constrain(roll_target, -PARAM_GET(ATTC_RP_LIMIT), PARAM_GET(ATTC_RP_LIMIT));
 	pitch_target = constrain(pitch_target, -PARAM_GET(ATTC_RP_LIMIT), PARAM_GET(ATTC_RP_LIMIT));
 
-    rate_taret_roll  = pid_update(&att_pid_roll, roll_target-att->roll, dt);
-    rate_taret_pitch = pid_update(&att_pid_pitch, pitch_target-att->pitch, dt);
+    rate_taret_roll  = pid_update(&att_pid_roll, roll_target-EST_ROLL, dt);
+    rate_taret_pitch = pid_update(&att_pid_pitch, pitch_target-EST_PITCH, dt);
 
     att_control_roll_pitch_rate_update(dt, rate_taret_roll, rate_taret_pitch, limit);
 }
@@ -75,7 +75,7 @@ void att_control_yaw_rate_update(float dt, float yaw_rate_target)
 {
     float yaw_output;  
 
-    yaw_output = pid_update(&rate_pid_yaw, yaw_rate_target-att->yaw_rate, dt);
+    yaw_output = pid_update(&rate_pid_yaw, yaw_rate_target-EST_YAW_RATE, dt);
     mixer_set_yaw(yaw_output);  
 }
 
@@ -83,7 +83,7 @@ void att_control_yaw_update(float dt, float yaw_target)
 {
 	float rate_taret_yaw;
 
-    rate_taret_yaw   = pid_update(&att_pid_yaw, yaw_target-att->yaw, dt);
+    rate_taret_yaw   = pid_update(&att_pid_yaw, yaw_target-EST_YAW, dt);
     att_control_yaw_rate_update(dt, rate_taret_yaw);
 }
 

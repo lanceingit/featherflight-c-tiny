@@ -14,8 +14,8 @@ typedef struct
     float i_limit;
     float out_limit;
     float d_weight;
-} pid_s;
+} Pid;
 
-void pid_init(pid_s* self, float p,float i,float d, float i_limit, float out_limit, float d_weight);
-void pid_reset(pid_s* self);
-float pid_update(pid_s* self, float error, float dt);
+void pid_init(Pid* self, float p,float i,float d, float i_limit, float out_limit, float d_weight);
+void pid_reset(Pid* self);
+float pid_update(Pid* self, float error, float dt);

@@ -1,5 +1,7 @@
 #pragma once
 
+#define F3_EVO
+
 #include "chip.h"
 #include "version.h"
 

@@ -18,19 +18,26 @@ typedef struct
     bool gyro_need_cal;
     float temp;
 
-	lpf2p_s	acc_filter_x;
-	lpf2p_s	acc_filter_y;
-	lpf2p_s	acc_filter_z;
-	lpf2p_s	gyro_filter_x;
-	lpf2p_s	gyro_filter_y;
-	lpf2p_s	gyro_filter_z;
+	Lpf2p	acc_filter_x;
+	Lpf2p	acc_filter_y;
+	Lpf2p	acc_filter_z;
+	Lpf2p	gyro_filter_x;
+	Lpf2p	gyro_filter_y;
+	Lpf2p	gyro_filter_z;
 
     rotation_e rotation;
 
     //method
-    init_func* init;
-    imu_update_func* update;
-} imu_s;
+    init_func init;
+    imu_update_func update;
+} Imu;
+
+#define SENS_IMU_IS_READY   imu->ready 
+#define SENS_IMU_IS_UPDATE  imu->is_update
+#define SENS_GYRO           imu->gyro
+#define SENS_ACC            imu->acc
+#define SENS_IMU_TEMP       imu->temp
+
 
 typedef struct
 {
@@ -38,9 +45,12 @@ typedef struct
     Vector mag;
     
     //method
-    init_func* init;
-    update_func* update;
-} compass_s;
+    init_func init;
+    update_func update;
+} Compass;
+
+#define SENS_MAG      compass->mag
+
 
 typedef struct
 {
@@ -51,21 +61,28 @@ typedef struct
     float altitude_smooth;    
 
     //method
-    init_func* init;
-    update_func* update;     
-} baro_s;
+    init_func init;
+    update_func update;     
+} Baro;
 
-extern imu_s* imu;
-extern compass_s* compass;
-extern baro_s* baro;
+#define SENS_BARO_TEMP    baro->temperature
+#define SENS_PRESS        baro->pressure
+#define SENS_BARO_ALT     baro->altitude
+#define SENS_BARO_ALT_S   baro->altitude_smooth
 
-void imu_register(imu_s* item);
+
+
+extern Imu* imu;
+extern Compass* compass;
+extern Baro* baro;
+
+void imu_register(Imu* item);
 void imu_update(void);
 
-void compass_register(compass_s* item);
+void compass_register(Compass* item);
 void compass_update(void);
 
-void baro_register(baro_s* item);
+void baro_register(Baro* item);
 void baro_update(void);
 
 void sensor_init(void);

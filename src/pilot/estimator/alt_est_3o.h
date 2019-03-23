@@ -4,7 +4,7 @@
 
 struct alt_est_3o_s
 {
-	struct alt_est_s heir;    
+	AltEst heir;    
     float k1;
     float k2;
     float k3;

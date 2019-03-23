@@ -3,7 +3,7 @@
 #include "serial.h"
 
 
-static serial_s serial1 = {.inited=false};
+static Serial serial1 = {.inited=false};
 
 
 static void serial_port1_init(void) 
@@ -33,9 +33,9 @@ static void serial_port1_init(void)
     NVIC_Init(&NVIC_InitStruct);
 }
 
-serial_s* serial_open(USART_TypeDef *USARTx, uint32_t baud, uint8_t* rxbuf, uint16_t rxbuf_size, uint8_t* txbuf, uint16_t txbuf_size)
+Serial* serial_open(USART_TypeDef *USARTx, uint32_t baud, uint8_t* rxbuf, uint16_t rxbuf_size, uint8_t* txbuf, uint16_t txbuf_size)
 {
-    serial_s* self = NULL;
+    Serial* self = NULL;
     USART_InitTypeDef USART_InitStructure;
     
     if (USARTx == USART1) {
@@ -79,14 +79,14 @@ serial_s* serial_open(USART_TypeDef *USARTx, uint32_t baud, uint8_t* rxbuf, uint
     return self;
 }
 
-void serial_write_ch(serial_s* self, unsigned char ch) 
+void serial_write_ch(Serial* self, unsigned char ch) 
 {
     fifo_write_force(&self->tx_fifo, ch);
 
     USART_ITConfig(self->USARTx, USART_IT_TXE, ENABLE);
 }
 
-void serial_write(serial_s* self, unsigned char* buf, uint16_t len) 
+void serial_write(Serial* self, unsigned char* buf, uint16_t len) 
 {
     for(uint16_t i=0; i<len; i++)
     {
@@ -96,12 +96,12 @@ void serial_write(serial_s* self, unsigned char* buf, uint16_t len)
     USART_ITConfig(self->USARTx, USART_IT_TXE, ENABLE);
 }
 
-bool serial_available(serial_s* self) 
+bool serial_available(Serial* self) 
 {
 	return !fifo_is_empty(&self->rx_fifo);
 }
 
-int8_t serial_read(serial_s* self, uint8_t* ch) 
+int8_t serial_read(Serial* self, uint8_t* ch) 
 {
     return fifo_read(&self->rx_fifo, ch);
 }
@@ -110,7 +110,7 @@ int8_t serial_read(serial_s* self, uint8_t* ch)
 //
 // Interrupt handlers
 //
-static void serial_IRQHandler(serial_s* self) 
+static void serial_IRQHandler(Serial* self) 
 {
     uint16_t SR = self->USARTx->ISR;
 	

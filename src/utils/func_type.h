@@ -4,11 +4,11 @@
 #include "rotation.h"
 #include "vector.h"
 
-typedef bool (init_func)(void);
-typedef void (update_func)(void);
-typedef void (imu_update_func)(Vector* acc, Vector* gyro);
-typedef bool (read_status_func)(void);
-typedef void (set_status_func)(void);
-typedef void (set_val_func)(uint8_t);
+typedef bool (*const init_func)(void);
+typedef void (*const update_func)(void);
+typedef void (*const imu_update_func)(Vector* acc, Vector* gyro);
+typedef bool (*const read_status_func)(void);
+typedef void (*const set_status_func)(void);
+typedef void (*const set_val_func)(uint8_t);
 
-typedef bool (run_func)(float dt);
+typedef bool (*const run_func)(float dt);

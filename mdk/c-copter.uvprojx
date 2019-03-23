@@ -335,7 +335,7 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>F3_EVO,STM32F303xC,USE_STDPERIPH_DRIVER,ARM_MATH_CM4,__FPU_PRESENT=1,__USE_C99_MATH</Define>
+              <Define>STM32F303xC,USE_STDPERIPH_DRIVER,ARM_MATH_CM4,__FPU_PRESENT=1,__USE_C99_MATH</Define>
               <Undefine></Undefine>
               <IncludePath>..\src\bsp;..\src\bsp\CMSIS\CM4\CoreSupport;..\src\bsp\CMSIS\CM4\DeviceSupport\ST\STM32F30x;..\src\bsp\STM32F30x_StdPeriph_Driver\inc;..\src\driver;..\src\link\mavlink;..\src\link\mavlink\common;..\src\link;..\src;..\src\mathlib;..\src\utils;..\src\utils\geo;..\src\utils\geo_lookup;..\src\config;..\src\modules;..\src\pilot;..\src\param;..\src\link\wwlink;..\src\pilot\estimator;..\src\pilot\navigator</IncludePath>
             </VariousControls>
@@ -525,6 +525,11 @@
               <FileName>timer.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\src\driver\timer.c</FilePath>
+            </File>
+            <File>
+              <FileName>motor.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\driver\motor.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1315,6 +1320,11 @@
               <FileName>alt_control.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\src\pilot\alt_control.c</FilePath>
+            </File>
+            <File>
+              <FileName>output.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\pilot\output.c</FilePath>
             </File>
           </Files>
         </Group>

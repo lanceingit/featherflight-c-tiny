@@ -217,7 +217,7 @@ void wwlink_stream(void)
 
 	TIMER_DEF(last_info_update_time)
     if(timer_check(&last_info_update_time, 50*1000)) {
-		wwlink_encode_status_base_info(att->roll, att->pitch, att->yaw);
+		wwlink_encode_status_base_info(EST_ROLL, EST_PITCH, EST_YAW);
     }
 
 }

@@ -11,14 +11,14 @@
 #define LINK_DEBUG(a)
 #endif
 
-struct att_est_cf_s att_est_cf = {
+AttEstCf att_est_cf = {
 	.heir = {
         .init = &att_est_cf_init,
         .run = &att_est_cf_run,
 	},
 };
 
-static struct att_est_cf_s* this=&att_est_cf;
+static AttEstCf* this=&att_est_cf;
 
 bool att_est_cf_init(void)
 {

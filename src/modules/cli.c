@@ -152,7 +152,7 @@ bool cli_char_parse(char c)
     return false;
 }
 
-void cli_updata(void)
+void cli_update(void)
 {
     int len = cli_device_read(read_buffer, BUFFER_SIZE);
 

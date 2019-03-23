@@ -10,7 +10,7 @@
 #include "debug.h"
 
 
-struct att_est_q_s att_est_q = {
+AttEstQ att_est_q = {
 	.heir = {
 		.init = &att_est_q_init,
 		.run = &att_est_q_run,
@@ -21,7 +21,7 @@ struct att_est_q_s att_est_q = {
 	},
 };
 
-static struct att_est_q_s* this=&att_est_q;
+static AttEstQ* this=&att_est_q;
 
 
 bool att_est_q_init(void)
@@ -43,7 +43,7 @@ bool att_est_q_init(void)
 //	PRINT("w_gyro_bias=%f\n", (double)this->w_gyro_bias);
     
     
-    this->heir.acc = imu->acc;
+    this->heir.acc = SENS_ACC;
 
 	vector_print("acc", this->heir.acc);	
 
@@ -59,7 +59,7 @@ bool att_est_q_init(void)
 
 	if(this->heir.use_compass)
     {
-        this->heir.mag = compass->mag;
+        this->heir.mag = SENS_MAG;
         //esprintf(buf, "mag0:%.3f 1:%.3f 2:%.3f", (double)_mag(0),(double)_mag(1),(double)_mag(2));
         //PRINT(buf);
         if (vector_length(this->heir.mag) < 0.01f) {

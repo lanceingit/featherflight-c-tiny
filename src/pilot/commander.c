@@ -30,7 +30,7 @@ struct commander_s
     bool flying;
     enum alt_scene_e alt_scene;
     uint8_t curr_controler;
-    struct stick_s stick;
+    Stick stick;
     float rp_gain;
     float yaw_rate_gain;
     float vel_z_gain;
@@ -116,7 +116,7 @@ void commander_set_thrust(uint8_t ch, float v)
     }
 }
 
-uint16_t stick_get_position(struct stick_s* s, float limit, float deadzone)
+uint16_t stick_get_position(Stick* s, float limit, float deadzone)
 {
 	uint16_t pos=0;
 
@@ -259,7 +259,7 @@ void commander_update(void)
         case ALT_PRE_TAKEOFF:
             //当气压计高度大于起飞前高度，设置为起飞模�?
             //pos，vel权重增加，得到一个准确值。同时减小bias权重，因为这时修正不准�?
-            if(baro->altitude_smooth-alt->ref_alt > alt->terrain_offset) {
+            if(SENS_BARO_ALT_S-EST_REF_ALT > EST_TERRAIN_OFFSET) {
                 this->alt_scene = ALT_TAKEOFF;
             }              
             break;
@@ -274,7 +274,7 @@ void commander_update(void)
             if(-STICK_DEADZONE < this->stick.thrust && this->stick.thrust < STICK_DEADZONE) {
                 this->alt_scene = ALT_NORMAL;
             }
-            if(fabsf(alt->vel) > PARAM_GET(CMDER_VEL_HOLD_MAX) && 
+            if(fabsf(EST_ALT_VEL) > PARAM_GET(CMDER_VEL_HOLD_MAX) && 
                 (this->alt_scene == ALT_MOVE_UP||timer_is_timeout(&alt_smooth_time))){
                 //悬停不稳时，使用速度控制。能有效抑制上拉后掉�?
                 this->alt_scene = ALT_MOVE_UP;

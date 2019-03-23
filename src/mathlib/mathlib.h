@@ -24,16 +24,16 @@
 
 
 
-struct variance_s
+typedef struct 
 {
 	float sum;
 	float sum_sq;
 	uint8_t size;
-	fifo_f_s fifo;
+	FifoF fifo;
 	float data[100];
-	fifo_f_s fifo_sq;
+	FifoF fifo_sq;
 	float data_sq[100];
-};
+} Variance;
 
 float sin_f(float x);
 float cos_f(float x);
@@ -46,8 +46,8 @@ float constrain(float val, float min_val, float max_val);
 float wrap_pi(float bearing);
 float press2alt(float p);
 
-void variance_create(struct variance_s* v, uint8_t size);
-float variance_cal(struct variance_s* v, float val);
+void variance_create(Variance* slef, uint8_t size);
+float variance_cal(Variance* self, float val);
 
 Vector rotation_ef(Dcm r, Vector* b);
 Vector rotation_bf(Dcm r, Vector* e);

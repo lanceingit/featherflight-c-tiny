@@ -3,9 +3,9 @@
 #include "est.h"
 #include "lpf.h"
 
-struct att_est_q_s
+typedef struct
 {
-	struct att_est_s heir;
+	AttEst heir;
     
 	bool mag_decl_auto;
 	float mag_decl;
@@ -17,15 +17,15 @@ struct att_est_q_s
 
     Vector rate;
 
-	lpf2p_s	acc_filter_x;
-	lpf2p_s	acc_filter_y;
-	lpf2p_s	acc_filter_z;
-	lpf2p_s	gyro_filter_x;
-	lpf2p_s	gyro_filter_y;
-	lpf2p_s	gyro_filter_z;
-};
+	Lpf2p	acc_filter_x;
+	Lpf2p	acc_filter_y;
+	Lpf2p	acc_filter_z;
+	Lpf2p	gyro_filter_x;
+	Lpf2p	gyro_filter_y;
+	Lpf2p	gyro_filter_z;
+} AttEstQ;
 
-extern struct att_est_q_s att_est_q;
+extern AttEstQ att_est_q;
 
 bool att_est_q_init(void);
 bool att_est_q_run(float dt);

@@ -27,7 +27,7 @@
 
 uint8_t sendbuf[300];
 #ifdef F3_EVO
-serial_s * _port;
+Serial * _port;
 #elif LINUX
 #define UDP_PORT  14550
 #define UDP_IP    "192.168.100.255"
@@ -232,12 +232,12 @@ void mavlink_stream(void)
     {
         mavlink_msg_attitude_send(MAV_CH,
                                timer_now(), 
-                               att->roll*M_DEG_TO_RAD,
-                               att->pitch*M_DEG_TO_RAD,
-                               att->yaw*M_DEG_TO_RAD,
-                               att->roll_rate,
-                               att->pitch_rate,
-                               att->yaw_rate
+                               EST_ROLL*M_DEG_TO_RAD,
+                               EST_PITCH*M_DEG_TO_RAD,
+                               EST_YAW*M_DEG_TO_RAD,
+                               EST_ROLL_RATE,
+                               EST_PITCH_RATE,
+                               EST_YAW_RATE
                                  );
 
         // mavlink_msg_named_value_float_send(MAV_CH,

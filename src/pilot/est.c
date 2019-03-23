@@ -5,11 +5,11 @@
 #include "debug.h"
 #include "trigger.h"
 
-struct att_est_s* att=NULL;
-struct alt_est_s* alt=NULL;
-struct pos_est_s* pos=NULL;
+AttEst* att=NULL;
+AltEst* alt=NULL;
+PosEst* pos=NULL;
 
-void att_est_register(struct att_est_s* est)
+void att_est_register(AttEst* est)
 {
     att = est;
 }
@@ -24,10 +24,10 @@ void att_init(void)
 	att->last_time = 0;
 	att->inited = false;    
     
-    att->init();   	
+    (*att->init)();   	
 }
 
-void alt_est_register(struct alt_est_s* est)
+void alt_est_register(AltEst* est)
 {
 	alt = est;
 }
@@ -45,10 +45,10 @@ void alt_init(void)
 	alt->valid = false;
 	alt->ref_alt = 0.0f;
     alt->ref_inited = false;
-	alt->init();
+	(*alt->init)();
 }
 
-void pos_est_register(struct pos_est_s* est)
+void pos_est_register(PosEst* est)
 {
 	pos = est;
 }
@@ -66,7 +66,7 @@ void pos_init(void)
 	pos->vx = 0.0f;
 	pos->vy = 0.0f;
 	pos->valid = false;
-	pos->init();
+	(*pos->init)();
 }
 
 void est_init(void)
@@ -78,9 +78,10 @@ void est_init(void)
 
 void est_att_run(void)
 {
-	if(imu->ready) {
-		att->gyro = imu->gyro;
-		att->acc = imu->acc;
+	if(SENS_IMU_IS_READY) {
+		att->gyro = SENS_GYRO;
+		att->acc = SENS_ACC;
+        SENS_IMU_IS_UPDATE = false;
 
 		if (vector_length(att->acc) < 0.01f) {
 			PRINT("WARNING: degenerate accel!\n");
@@ -91,7 +92,7 @@ void est_att_run(void)
 	}
 
 	if(att->use_compass) {
-        att->mag = compass->mag;
+        att->mag = SENS_MAG;
 
 		if (vector_length(att->mag) < 0.01f) {
 			PRINT("WARNING: degenerate mag!\n");
@@ -101,15 +102,15 @@ void est_att_run(void)
 
 	float dt = timer_get_dt(&att->last_time, 0.02f, 0.00001f);
 
-	if (!att->run(dt)) {
+	if (!(*att->run)(dt)) {
 		return;
 	}
 
     Vector euler = quaternion_to_euler(att->q);  
 
-    att->roll_rate =  (imu->gyro.x + att->gyro_bias.x)*M_RAD_TO_DEG;
-    att->pitch_rate = (imu->gyro.y + att->gyro_bias.y)*M_RAD_TO_DEG;
-    att->yaw_rate =   (imu->gyro.z + att->gyro_bias.z)*M_RAD_TO_DEG;
+    att->roll_rate =  (SENS_GYRO.x + att->gyro_bias.x)*M_RAD_TO_DEG;
+    att->pitch_rate = (SENS_GYRO.y + att->gyro_bias.y)*M_RAD_TO_DEG;
+    att->yaw_rate =   (SENS_GYRO.z + att->gyro_bias.z)*M_RAD_TO_DEG;
 
     att->roll = euler.x*M_RAD_TO_DEG;
     att->pitch = euler.y*M_RAD_TO_DEG;
@@ -126,7 +127,7 @@ void est_alt_run(void)
 
 	if(!alt->ref_inited) {
 		if(baro_read_cnt < BARO_CAL_MAX) {
-			alt->ref_alt += baro->altitude; 
+			alt->ref_alt += SENS_BARO_ALT; 
 			baro_read_cnt++;
 		} else {
 			alt->ref_alt /= BARO_CAL_MAX;
@@ -137,7 +138,7 @@ void est_alt_run(void)
 
 	float dt = timer_get_dt(&alt->last_time, 0.02f, 0.001f);
 
-	alt->run(dt);
+	(*alt->run)(dt);
 
 }
 
@@ -145,5 +146,5 @@ void est_pos_run(void)
 {
 	float dt = timer_get_dt(&pos->last_time, 0.02f, 0.001f);
 
-	pos->run(dt);
+	(*pos->run)(dt);
 }

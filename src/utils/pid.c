@@ -1,7 +1,7 @@
 #include "pid.h"
 #include "mathlib.h"
 
-void pid_init(pid_s* self, float p,float i,float d, float i_limit, float out_limit, float d_weight)
+void pid_init(Pid* self, float p,float i,float d, float i_limit, float out_limit, float d_weight)
 {
     self->kp = p; 
     self->ki = i; 
@@ -15,7 +15,7 @@ void pid_init(pid_s* self, float p,float i,float d, float i_limit, float out_lim
 	self->d_out = 0.0f;    
 }
 
-void pid_reset(pid_s* self)
+void pid_reset(Pid* self)
 {
 	self->error_prev = 0.0f;
 	self->output = 0.0f;
@@ -23,7 +23,7 @@ void pid_reset(pid_s* self)
 	self->d_out = 0.0f;    
 }
 
-float pid_update(pid_s* self, float error, float dt)
+float pid_update(Pid* self, float error, float dt)
 {
     float output = 0.0f;
 

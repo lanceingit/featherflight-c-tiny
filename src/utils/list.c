@@ -7,10 +7,10 @@
     for(pos=head; pos!=NULL; pos=pos->next)
 
 
-list_s* list_find_by_num(list_s* head, uint16_t num)
+List* list_find_by_num(List* head, uint16_t num)
 {
     uint16_t cnt=0;
-    list_s* pos;
+    List* pos;
     LIST_FOREACH(pos, head) {
         if(num == cnt) {
             return pos;
@@ -20,13 +20,13 @@ list_s* list_find_by_num(list_s* head, uint16_t num)
     return NULL;
 }
 
-void list_del(list_s* head, uint16_t num)
+void list_del(List* head, uint16_t num)
 {
     if(num == 0) {
         head = head->next;
     } else {
         uint16_t cnt=0;
-        list_s* pos;
+        List* pos;
         LIST_FOREACH(pos, head) {
             if(num-1 == cnt) {
                 pos->next = pos->next->next;
@@ -36,12 +36,12 @@ void list_del(list_s* head, uint16_t num)
     }
 }
 
-void list_insert(list_s* head, void* node, uint16_t num)
+void list_insert(List* head, void* node, uint16_t num)
 {
-    list_s* new = mm_malloc(sizeof(list_s));
+    List* new = mm_malloc(sizeof(List));
     if(new != NULL) {
         uint16_t cnt=0;
-        list_s* pos;
+        List* pos;
         LIST_FOREACH(pos, head) {
             if(num == cnt) {
                 new->node = node;
@@ -54,11 +54,11 @@ void list_insert(list_s* head, void* node, uint16_t num)
     }
 }
 
-void list_add(list_s* head, void* node)
+void list_add(List* head, void* node)
 {
-    list_s* new = mm_malloc(sizeof(list_s));
+    List* new = mm_malloc(sizeof(List));
     if(new != NULL) {
-        list_s* pos;
+        List* pos;
         LIST_FOREACH(pos, head) {
             if(pos->next == NULL) {
                 new->node = node;
@@ -69,7 +69,7 @@ void list_add(list_s* head, void* node)
     }
 }
 
-void list_init(list_s* head)
+void list_init(List* head)
 {
     head->next = NULL;
 }

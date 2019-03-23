@@ -6,7 +6,8 @@
 #define MAT(m, r, c) (m.data[r*m.column + c])
 #define M_DIAG(m, i) (m.data[i*m.column + i])
 
-typedef struct {
+typedef struct 
+{
     uint8_t row;
     uint8_t column;
     float* data;

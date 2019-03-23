@@ -8,11 +8,11 @@
 
 #define SPIN_RATE_LIMIT    0.175f
 
-struct att_est_s 
+typedef struct 
 {
     //member
-    init_func* init;
-    run_func* run;    
+    init_func init;
+    run_func run;    
 	times_t last_time;
 
     bool inited;
@@ -38,9 +38,17 @@ struct att_est_s
     Vector gyro_bias;
 	Vector corr;
     float spin_rate;
-};
+} AttEst;
 
-struct pos_est_s 
+#define EST_ROLL            att->roll
+#define EST_PITCH           att->pitch
+#define EST_YAW             att->yaw
+#define EST_ROLL_RATE       att->roll_rate
+#define EST_PITCH_RATE      att->pitch_rate
+#define EST_YAW_RATE        att->yaw_rate
+
+
+typedef struct
 {
     //member
     float x;		//N
@@ -58,16 +66,16 @@ struct pos_est_s
 	double ref_lat;
 	double ref_lon;
 
-    init_func* init;
-    run_func* run;    
+    init_func init;
+    run_func run;    
 	times_t last_time;
-};
+} PosEst;
 
-struct alt_est_s 
+typedef struct
 {
     //member
-    init_func* init;
-    run_func* run;    
+    init_func init;
+    run_func run;    
 	times_t last_time;
 
     bool inited;
@@ -83,15 +91,20 @@ struct alt_est_s
 
 	float ref_alt;
     bool ref_inited;
-};
+} AltEst;
 
-extern struct att_est_s* att;
-extern struct alt_est_s* alt;
-extern struct pos_est_s* pos;
+#define EST_REF_ALT             alt->ref_alt
+#define EST_TERRAIN_OFFSET      alt->terrain_offset
+#define EST_ALT_VEL             alt->vel
+#define EST_ALT                 alt->alt
 
-void att_est_register(struct att_est_s* est);
-void alt_est_register(struct alt_est_s* est);
-void pos_est_register(struct pos_est_s* est);
+extern AttEst* att;
+extern AltEst* alt;
+extern PosEst* pos;
+
+void att_est_register(AttEst* est);
+void alt_est_register(AltEst* est);
+void pos_est_register(PosEst* est);
 
 void est_init(void);
 void est_att_run(void);

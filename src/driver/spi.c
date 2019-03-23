@@ -6,15 +6,8 @@
 
 #define SPI_TIMEOUT    1000
 
-typedef enum {
-	SPI_CLOCK_INITIALIZATON = 256,
-	SPI_CLOCK_SLOW          = 128, //00.56250 MHz
-	SPI_CLOCK_STANDARD      = 4,   //09.00000 MHz
-	SPI_CLOCK_FAST          = 2,   //18.00000 MHz
-	SPI_CLOCK_ULTRAFAST     = 2,   //18.00000 MHz
-} SPIClockDivider_e;
 
-static spi_s spi2 = {.inited = false};
+static Spi spi2 = {.inited = false};
 
 
 static void spi_port2_init(void)
@@ -38,9 +31,9 @@ static void spi_port2_init(void)
     GPIO_PinAFConfig(GPIOB, GPIO_PinSource15, GPIO_AF_5);  
 }
 
-spi_s* spi_open(SPI_TypeDef* SPIx)
+Spi* spi_open(SPI_TypeDef* SPIx)
 {
-    spi_s* self = NULL;
+    Spi* self = NULL;
     SPI_InitTypeDef SPI_InitStructure;
     
     if (SPIx == SPI2) {
@@ -77,7 +70,7 @@ spi_s* spi_open(SPI_TypeDef* SPIx)
 }
 
 
-int8_t spi_transfer_byte(spi_s* self, uint8_t* out, uint8_t in)
+int8_t spi_transfer_byte(Spi* self, uint8_t* out, uint8_t in)
 {
     uint16_t spiTimeout = SPI_TIMEOUT;
 
@@ -101,7 +94,7 @@ int8_t spi_transfer_byte(spi_s* self, uint8_t* out, uint8_t in)
 
 
 
-int8_t spi_transfer(spi_s* self, uint8_t *out, const uint8_t *in, int len)
+int8_t spi_transfer(Spi* self, uint8_t *out, const uint8_t *in, int len)
 {
     uint16_t spiTimeout = SPI_TIMEOUT;
 
@@ -127,7 +120,7 @@ int8_t spi_transfer(spi_s* self, uint8_t *out, const uint8_t *in, int len)
     return 0;
 }
 
-void spi_set_divisor(spi_s* self, uint16_t divisor)
+void spi_set_divisor(Spi* self, uint16_t divisor)
 {
 #define BR_CLEAR_MASK 0xFFC7
 

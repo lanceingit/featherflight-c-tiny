@@ -27,7 +27,7 @@ typedef struct
     uint8_t *data;
     uint16_t size;
     uint16_t cnt;
-} fifo_s;
+} Fifo;
 
 typedef struct 
 {
@@ -36,30 +36,30 @@ typedef struct
     float *data;
     uint16_t size;
     uint16_t cnt;
-} fifo_f_s;
+} FifoF;
 
-void fifo_create(fifo_s *self, uint8_t *buf, uint16_t size);
+void fifo_create(Fifo *self, uint8_t *buf, uint16_t size);
 
-int8_t fifo_write(fifo_s *self, uint8_t c);
-void fifo_write_force(fifo_s *self, uint8_t c);
-int8_t fifo_read(fifo_s *self, uint8_t* c);
+int8_t fifo_write(Fifo *self, uint8_t c);
+void fifo_write_force(Fifo *self, uint8_t c);
+int8_t fifo_read(Fifo *self, uint8_t* c);
 
-bool fifo_is_empty(fifo_s *self);
-uint16_t fifo_get_count(fifo_s *self);
+bool fifo_is_empty(Fifo *self);
+uint16_t fifo_get_count(Fifo *self);
 
-uint8_t* fifo_get_tail(fifo_s *self);
-void fifo_set_tail(fifo_s *self, uint8_t* new_tail);
+uint8_t* fifo_get_tail(Fifo *self);
+void fifo_set_tail(Fifo *self, uint8_t* new_tail);
 
-uint16_t fifo_get_tail_index(fifo_s *self);
-void fifo_set_tail_index(fifo_s *self, uint16_t new_index);
-void fifo_print(fifo_s *self);
+uint16_t fifo_get_tail_index(Fifo *self);
+void fifo_set_tail_index(Fifo *self, uint16_t new_index);
+void fifo_print(Fifo *self);
 
-void fifo_f_create(fifo_f_s *self, float *buf, uint16_t size);
-int8_t fifo_f_write(fifo_f_s *self, float c);
-void fifo_f_write_force(fifo_f_s *self, float c);
-int8_t fifo_f_read(fifo_f_s *self, float* c);
-bool fifo_f_is_empty(fifo_f_s *self);
-uint16_t fifo_f_get_count(fifo_f_s *self);
+void fifo_f_create(FifoF *self, float *buf, uint16_t size);
+int8_t fifo_f_write(FifoF *self, float c);
+void fifo_f_write_force(FifoF *self, float c);
+int8_t fifo_f_read(FifoF *self, float* c);
+bool fifo_f_is_empty(FifoF *self);
+uint16_t fifo_f_get_count(FifoF *self);
 
 #ifdef __cplusplus
 }

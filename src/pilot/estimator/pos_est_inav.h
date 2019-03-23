@@ -4,7 +4,7 @@
 
 struct pos_est_inav_s
 {
-	struct pos_est_s heir;    
+	PosEst heir;    
 };
 
 extern struct pos_est_inav_s pos_est_inav;

@@ -8,85 +8,69 @@
 #include "mathlib.h"
 
 
-#define MS5611_ADDR                 0x77
-
-#define CMD_RESET               0x1E // ADC reset command
-#define CMD_ADC_READ            0x00 // ADC read command
-#define CMD_ADC_CONV            0x40 // ADC conversion command
-#define CMD_ADC_D1              0x00 // ADC D1 conversion
-#define CMD_ADC_D2              0x10 // ADC D2 conversion
-#define CMD_ADC_256             0x00 // ADC OSR=256
-#define CMD_ADC_512             0x02 // ADC OSR=512
-#define CMD_ADC_1024            0x04 // ADC OSR=1024
-#define CMD_ADC_2048            0x06 // ADC OSR=2048
-#define CMD_ADC_4096            0x08 // ADC OSR=4096
-#define CMD_PROM_RD             0xA0 // Prom read command
-#define PROM_NB                 8
-
-#define ADDR_CMD_CONVERT_D1_OSR256		0x40	/* write to this address to start pressure conversion */
-#define ADDR_CMD_CONVERT_D1_OSR512		0x42	/* write to this address to start pressure conversion */
-#define ADDR_CMD_CONVERT_D1_OSR1024		0x44	/* write to this address to start pressure conversion */
-#define ADDR_CMD_CONVERT_D1_OSR2048		0x46	/* write to this address to start pressure conversion */
-#define ADDR_CMD_CONVERT_D1_OSR4096		0x48	/* write to this address to start pressure conversion */
-#define ADDR_CMD_CONVERT_D2_OSR256		0x50	/* write to this address to start temperature conversion */
-#define ADDR_CMD_CONVERT_D2_OSR512		0x52	/* write to this address to start temperature conversion */
-#define ADDR_CMD_CONVERT_D2_OSR1024		0x54	/* write to this address to start temperature conversion */
-#define ADDR_CMD_CONVERT_D2_OSR2048		0x56	/* write to this address to start temperature conversion */
-#define ADDR_CMD_CONVERT_D2_OSR4096		0x58	/* write to this address to start temperature conversion */
-
-#define T_BASE	(15.0f + 273.15f)	/* temperature at base height in Kelvin */
-#define T_GRA	(-6.5f / 1000.0f)	/* temperature gradient in degrees per metre */
-#define R_GAS   (287.05f)	/* ideal gas constant in J/kg/K */
-
-
-#define MS5611_CONVERSION_INTERVAL	25000	/* microseconds */
-#define MS5611_MEASUREMENT_RATIO	3	/* pressure measurements per temperature measurement */
-#define MSL_PRESSURE   101325.0f
-
-
-
-
-ms5611_s ms5611 = {
+Ms5611 ms5611 = {
 	.heir = {
 		.init = &ms5611_init,
 		.update = &ms5611_update,
 	},
 };
 
-static ms5611_s* this=&ms5611;
-
-static bool ms5611_read_prom(void);
-static int8_t ms5611_crc(uint16_t *prom);
-static uint32_t ms5611_read_adc(void);
+static Ms5611* this=&ms5611;
 
 
-
-bool ms5611_init(void)
+static uint32_t ms5611_read_adc(void)
 {
-    this->i2c = i2c_open(MS5611_I2C);
+    uint8_t rxbuf[3];
+    i2c_read(this->i2c, MS5611_ADDR, CMD_ADC_READ, 3, rxbuf); // read ADC
+    return (rxbuf[0] << 16) | (rxbuf[1] << 8) | rxbuf[2];
+}
 
-    int8_t ret;
-    uint8_t sig;
+static int8_t ms5611_crc(uint16_t *prom)
+{
+    int32_t i, j;
+    uint32_t res = 0;
+    uint8_t crc = prom[7] & 0xF;
+    prom[7] &= 0xFF00;
 
-    i2c_write(this->i2c, MS5611_ADDR, CMD_RESET, 1);
-    delay_ms(100);
+    bool blankEeprom = true;
 
-    
-    ret = i2c_read(this->i2c, MS5611_ADDR, CMD_PROM_RD, 1, &sig);
-    if (ret < 0)
-        return false;
+    for (i = 0; i < 16; i++) {
+        if (prom[i >> 1]) {
+            blankEeprom = false;
+        }
+        if (i & 1)
+            res ^= ((prom[i >> 1]) & 0x00FF);
+        else
+            res ^= (prom[i >> 1] >> 8);
+        for (j = 8; j > 0; j--) {
+            if (res & 0x8000)
+                res ^= 0x1800;
+            res <<= 1;
+        }
+    }
+    prom[7] |= crc;
+    if (!blankEeprom && crc == ((res >> 12) & 0xF))
+        return 0;
 
-    if(ms5611_read_prom() == false)
+    return -1;
+}
+
+static bool ms5611_read_prom(void)
+{
+    uint8_t rxbuf[2] = { 0, 0 };
+
+    for (uint8_t i = 0; i < PROM_NB; i++)
     {
-        return false;
-    }        
+        i2c_read(this->i2c, MS5611_ADDR, CMD_PROM_RD + i * 2, 2, rxbuf); // send PROM READ command
+        this->prom_buf.c[i] = rxbuf[0] << 8 | rxbuf[1];
     
-    this->measure_phase = 0;
-    this->collect_phase = false;
+    }
+    
+    if (ms5611_crc(this->prom_buf.c) != 0)
+        return false;    
     
     return true;
 }
-
 
 void ms5611_update()
 {
@@ -160,7 +144,6 @@ void ms5611_update()
         return;
     }
     
-    
     if(this->measure_phase == 0)
     {
         i2c_write(this->i2c, MS5611_ADDR, ADDR_CMD_CONVERT_D2_OSR1024, 1);
@@ -171,62 +154,32 @@ void ms5611_update()
     }
         
     this->collect_phase = true;
-
 }
 
-static uint32_t ms5611_read_adc(void)
+bool ms5611_init(void)
 {
-    uint8_t rxbuf[3];
-    i2c_read(this->i2c, MS5611_ADDR, CMD_ADC_READ, 3, rxbuf); // read ADC
-    return (rxbuf[0] << 16) | (rxbuf[1] << 8) | rxbuf[2];
-}
+    this->i2c = i2c_open(MS5611_I2C);
 
-static bool ms5611_read_prom(void)
-{
-    uint8_t rxbuf[2] = { 0, 0 };
+    int8_t ret;
+    uint8_t sig;
 
-    for (uint8_t i = 0; i < PROM_NB; i++)
+    i2c_write(this->i2c, MS5611_ADDR, CMD_RESET, 1);
+    delay_ms(100);
+
+    
+    ret = i2c_read(this->i2c, MS5611_ADDR, CMD_PROM_RD, 1, &sig);
+    if (ret < 0)
+        return false;
+
+    if(ms5611_read_prom() == false)
     {
-        i2c_read(this->i2c, MS5611_ADDR, CMD_PROM_RD + i * 2, 2, rxbuf); // send PROM READ command
-        this->prom_buf.c[i] = rxbuf[0] << 8 | rxbuf[1];
+        return false;
+    }        
     
-    }
-    
-    if (ms5611_crc(this->prom_buf.c) != 0)
-        return false;    
+    this->measure_phase = 0;
+    this->collect_phase = false;
     
     return true;
 }
-
-static int8_t ms5611_crc(uint16_t *prom)
-{
-    int32_t i, j;
-    uint32_t res = 0;
-    uint8_t crc = prom[7] & 0xF;
-    prom[7] &= 0xFF00;
-
-    bool blankEeprom = true;
-
-    for (i = 0; i < 16; i++) {
-        if (prom[i >> 1]) {
-            blankEeprom = false;
-        }
-        if (i & 1)
-            res ^= ((prom[i >> 1]) & 0x00FF);
-        else
-            res ^= (prom[i >> 1] >> 8);
-        for (j = 8; j > 0; j--) {
-            if (res & 0x8000)
-                res ^= 0x1800;
-            res <<= 1;
-        }
-    }
-    prom[7] |= crc;
-    if (!blankEeprom && crc == ((res >> 12) & 0xF))
-        return 0;
-
-    return -1;
-}
-
 
 

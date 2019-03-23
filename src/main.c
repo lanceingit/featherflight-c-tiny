@@ -27,16 +27,19 @@
 #include "navigator.h"
 #include "mm.h"
 #include "fifo.h"
+#include "motor.h"
 
-
-struct variance_s baro_variance;
+Variance baro_variance;
 float baro_vari;
 float baro_vel;
+
+uint8_t motor_index = 0; 
+uint16_t motor_val = 0;
 
 
 void fifo_test(void)
 {
-    fifo_s f;
+    Fifo f;
     uint8_t buf[10];
     uint8_t i,j;
     uint8_t tmp=0;
@@ -129,7 +132,7 @@ void task_link(void)
 
 void task_cli(void)
 {
-    cli_updata();
+    cli_update();
 }
 
 void task_imu(void)
@@ -149,7 +152,7 @@ void task_baro(void)
 
     baro_update();
 
-    float alt = baro->altitude;
+    float alt = SENS_BARO_ALT;
 
     baro_alt_f = ((baro_alt_f * 0.7f) + (alt * (1.0f - 0.7f)));
     baro_vel = (baro_alt_f - baro_alt_f_old) / (0.025000f);
@@ -161,13 +164,12 @@ void task_baro(void)
 
 void task_att(void)
 {
-	if(imu->update) {
+	if(SENS_IMU_IS_UPDATE) {
         PERF_DEF(att_elapsed)
 		perf_begin(&att_elapsed);
 		est_att_run();
 		perf_end(&att_elapsed);
         // perf_print(&att_elapsed, "att_elapsed");
-		imu->update = false;;
         PERF_DEF(att_perf);
 		perf_interval(&att_perf);
         // perf_print(&att_perf, "att_perf");
@@ -194,36 +196,41 @@ void task_log(void)
     log_run();    
 }
 
-void gyro_cal(void)         //TODO:put into sensor
+void task_motor(void)
 {
-    Vector gyro;
-    Vector gyro_sum;
-    Vector accel_start;
-    Vector accel_end;
-    Vector accel_diff;
-    
-	while(1) {
-		imu_update();
-		accel_start = imu->acc;
-        gyro_sum = vector_zero();
-        for(uint8_t i=0; i<50; i++) {
-        	imu_update();
-    		gyro = imu->gyro;
-            gyro_sum = vector_add(gyro_sum, gyro);
-    		delay_ms(10);
-        }
-        imu_update();
-		accel_end = imu->acc;
-        accel_diff = vector_sub(accel_start, accel_end);
-		if(vector_length(accel_diff) >  0.2f) continue;
-
-		imu->gyro_offset.x = gyro_sum.x/50;   
-		imu->gyro_offset.y = gyro_sum.y/50;
-		imu->gyro_offset.z = gyro_sum.z/50;
-        
-        return;
-	}
+    motor_set(motor_index, motor_val);    
 }
+
+//void gyro_cal(void)         //TODO:put into sensor
+//{
+//    Vector gyro;
+//    Vector gyro_sum;
+//    Vector accel_start;
+//    Vector accel_end;
+//    Vector accel_diff;
+//    
+//	while(1) {
+//		imu_update();
+//		accel_start = imu_acc;
+//        gyro_sum = vector_zero();
+//        for(uint8_t i=0; i<50; i++) {
+//        	imu_update();
+//    		gyro = imu->gyro;
+//            gyro_sum = vector_add(gyro_sum, gyro);
+//    		delay_ms(10);
+//        }
+//        imu_update();
+//		accel_end = imu->acc;
+//        accel_diff = vector_sub(accel_start, accel_end);
+//		if(vector_length(accel_diff) >  0.2f) continue;
+
+//		imu->gyro_offset.x = gyro_sum.x/50;   
+//		imu->gyro_offset.y = gyro_sum.y/50;
+//		imu->gyro_offset.z = gyro_sum.z/50;
+//        
+//        return;
+//	}
+//}
 
 #ifdef LINUX
 int featherflight_thread(void* arvg);
@@ -272,6 +279,7 @@ int main()
     // gyro_cal();
 
     fifo_test();
+    motor_init();
 
     att_est_register(&att_est_q.heir);
     // att_est_register(&att_est_cf.heir);
@@ -282,15 +290,16 @@ int main()
     variance_create(&baro_variance, 100);
 
     task_create("imu", 2000, task_imu);
-//    task_create("compass", (10000000 / 150), task_compass);
+    task_create("compass", (10000000 / 150), task_compass);
     task_create("baro", 25000, task_baro);
     task_create("att", 2000, task_att);
-    // task_create("alt", 2*1000, task_alt);
-//    task_create("cmder", 2000, task_commander);
-//    task_create("nav", 2000, task_navigator);
-   task_create("link", 2*1000, task_link);
-//    task_create("cli", 100*1000, task_cli);
-   task_create("log", 10*1000, task_log);
+   // task_create("alt", 2*1000, task_alt);
+    task_create("cmder", 2000, task_commander);
+    task_create("nav", 2000, task_navigator);
+    task_create("link", 2*1000, task_link);
+    task_create("cli", 100*1000, task_cli);
+    task_create("log", 10*1000, task_log);
+    task_create("motor", 100*1000, task_motor);
 
     while(1) {
 
@@ -315,5 +324,5 @@ int main()
         // perf_print(&main_perf, "main loop");
     }
     
-    return 0;
+//    return 0;
 }

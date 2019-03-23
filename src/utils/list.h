@@ -6,10 +6,10 @@ struct list_struct
     struct list_struct* next;
 };
 
-typedef struct list_struct list_s;
+typedef struct list_struct List;
 
-void list_init(list_s* head);
-void list_del(list_s* head, uint16_t num);
-void list_insert(list_s* head, void* node, uint16_t num);
-void list_add(list_s* head, void* node);
+void list_init(List* head);
+void list_del(List* head, uint16_t num);
+void list_insert(List* head, void* node, uint16_t num);
+void list_add(List* head, void* node);
 

@@ -6,7 +6,7 @@
 
 #define TASK_MAX     20
 
-static struct task_s* task_tab[TASK_MAX] = {NULL};
+Task* task_tab[TASK_MAX] = {NULL};
 static uint8_t task_cnt=0;
 
 void task_shell(int argc, char *argv[]);
@@ -16,11 +16,11 @@ void task_init(void)
     cli_regist("task", task_shell);
 }
 
-struct task_s* task_create(char* name, times_t interval, task_callback_func cb)
+Task* task_create(char* name, times_t interval, task_callback_func cb)
 {
     if(task_cnt >= TASK_MAX) return NULL;
 
-    task_tab[task_cnt] = (struct task_s*)mm_malloc(sizeof(struct task_s));
+    task_tab[task_cnt] = (Task*)mm_malloc(sizeof(Task));
     if(task_tab[task_cnt] == NULL) return NULL;
 
     task_tab[task_cnt]->callback = cb;
@@ -35,12 +35,12 @@ struct task_s* task_create(char* name, times_t interval, task_callback_func cb)
     return task_tab[task_cnt];
 }
 
-void task_set_rate(struct task_s* t, times_t time)
+void task_set_rate(Task* t, times_t time)
 {
     t->rate = time;
 }
 
-void task_disable(struct task_s* t)
+void task_disable(Task* t)
 {
     t->run = false;
 }

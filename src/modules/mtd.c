@@ -32,7 +32,7 @@ static int mtd_fd = -1;
 static uint8_t page_buf[BUF_SIZE];
 #endif
 
-static fifo_s write_fifo;
+static Fifo write_fifo;
 static uint8_t buf[BUF_SIZE];
 
 static uint32_t write_addr;

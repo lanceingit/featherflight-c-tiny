@@ -7,31 +7,6 @@
 
 #include "timer.h"
 
-#define M25P16_ERASE_SIZE_MIN 	4096
-
-#define M25P16_INSTRUCTION_RDID             0x9F
-#define M25P16_INSTRUCTION_READ_BYTES       0x03
-#define M25P16_INSTRUCTION_READ_STATUS_REG  0x05
-#define M25P16_INSTRUCTION_WRITE_STATUS_REG 0x01
-#define M25P16_INSTRUCTION_WRITE_ENABLE     0x06
-#define M25P16_INSTRUCTION_WRITE_DISABLE    0x04
-#define M25P16_INSTRUCTION_PAGE_PROGRAM     0x02
-#define M25P16_INSTRUCTION_SECTOR_ERASE     0x20
-#define M25P16_INSTRUCTION_BULK_ERASE       0xC7
-
-#define M25P16_STATUS_FLAG_WRITE_IN_PROGRESS 0x01
-#define M25P16_STATUS_FLAG_WRITE_ENABLED     0x02
-
-// Format is manufacturer, memory type, then capacity
-#define JEDEC_ID_MICRON_M25P16         0x202015
-#define JEDEC_ID_MICRON_N25Q064        0x20BA17
-#define JEDEC_ID_WINBOND_W25Q64        0xEF4017
-#define JEDEC_ID_MACRONIX_MX25L3206E   0xC22016
-#define JEDEC_ID_MACRONIX_MX25L6406E   0xC22017
-#define JEDEC_ID_MICRON_N25Q128        0x20ba18
-#define JEDEC_ID_WINBOND_W25Q128       0xEF4018
-
-
 
 // The timeout we expect between being able to issue page program instructions
 #define DEFAULT_TIMEOUT_MILLIS       6
@@ -45,58 +20,16 @@
 
 static bool couldBeBusy=false;
 
-static int8_t spi_flash_performOneByteCommand(uint8_t command);
-static int8_t spi_flash_writeEnable(void);
-static uint8_t spi_flash_readStatus(void);
-static int8_t spi_flash_readIdentification(void);
+//static int8_t spi_flash_performOneByteCommand(uint8_t command);
+//static int8_t spi_flash_writeEnable(void);
+//static uint8_t spi_flash_readStatus(void);
+//static int8_t spi_flash_readIdentification(void);
 
-spi_flash_s spi_flash;
+SpiFlash spi_flash;
 
-static spi_flash_s* this=&spi_flash;
+static SpiFlash* this=&spi_flash;
 
-/**
- * Initialize the driver, must be called before any other routines.
- *
- * Attempts to detect a connected m25p16. If found, true is returned and device capacity can be fetched with
- * m25p16_getGeometry().
- */
-bool spi_flash_init()
-{
-	couldBeBusy=false;
-	this->pageSize = M25P16_PAGESIZE;
-    /* 
-        if we have already detected a flash device we can simply exit 
-        
-        TODO: change the init param in favour of flash CFG when ParamGroups work is done
-        then cs pin can be specified in hardware_revision.c or config.c (dependent on revision).
-    */
-    if (this->sectors) {
-        return true;
-    }
-    
-    this->spi = spi_open(SPI_FLAHS_SPI);
-    
-    GPIO_InitTypeDef GPIO_InitStructure;
-    
-    GPIO_StructInit(&GPIO_InitStructure);
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-//    GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_12; // CS
-    GPIO_Init(GPIOB, &GPIO_InitStructure);    
 
-    DISABLE_M25P16;
-
-    //Maximum speed for standard READ command is 20mHz, other commands tolerate 25mHz
-    spi_set_divisor(this->spi, 2);
-
-    if(spi_flash_readIdentification() == 0) {
-        return true;
-    } else {
-        return false;
-    }
-}
 
 /**
  * Send the given command byte to the device.
@@ -364,8 +297,51 @@ int spi_flash_readBytes(uint32_t address, uint8_t *buffer, int length)
  *
  * Can be called before calling m25p16_init() (the result would have totalSize = 0).
  */
-spi_flash_s* spi_flash_getGeometry()
+SpiFlash* spi_flash_getGeometry()
 {
     return this;
 }
 
+/**
+ * Initialize the driver, must be called before any other routines.
+ *
+ * Attempts to detect a connected m25p16. If found, true is returned and device capacity can be fetched with
+ * m25p16_getGeometry().
+ */
+bool spi_flash_init()
+{
+	couldBeBusy=false;
+	this->pageSize = M25P16_PAGESIZE;
+    /* 
+        if we have already detected a flash device we can simply exit 
+        
+        TODO: change the init param in favour of flash CFG when ParamGroups work is done
+        then cs pin can be specified in hardware_revision.c or config.c (dependent on revision).
+    */
+    if (this->sectors) {
+        return true;
+    }
+    
+    this->spi = spi_open(SPI_FLAHS_SPI);
+    
+    GPIO_InitTypeDef GPIO_InitStructure;
+    
+    GPIO_StructInit(&GPIO_InitStructure);
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+//    GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
+    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_12; // CS
+    GPIO_Init(GPIOB, &GPIO_InitStructure);    
+
+    DISABLE_M25P16;
+
+    //Maximum speed for standard READ command is 20mHz, other commands tolerate 25mHz
+    spi_set_divisor(this->spi, 2);
+
+    if(spi_flash_readIdentification() == 0) {
+        return true;
+    } else {
+        return false;
+    }
+}

@@ -10,7 +10,7 @@
 
 
 
-static i2c_s i2c1 = {.inited = false};
+static I2c i2c1 = {.inited = false};
 
 
 static void i2c_port1_init(void) 
@@ -34,9 +34,9 @@ static void i2c_port1_init(void)
     GPIO_PinAFConfig(GPIOB, GPIO_PinSource7, GPIO_AF_4);    
 }
 
-i2c_s* i2c_open(I2C_TypeDef* I2Cx)
+I2c* i2c_open(I2C_TypeDef* I2Cx)
 {
-    i2c_s* self = NULL;
+    I2c* self = NULL;
     I2C_InitTypeDef I2C_InitStructure;
     
     if (I2Cx == I2C1) {
@@ -66,7 +66,7 @@ i2c_s* i2c_open(I2C_TypeDef* I2Cx)
     return self;
 }
 
-int8_t i2c_write(i2c_s* self, uint8_t addr, uint8_t reg, uint8_t data)
+int8_t i2c_write(I2c* self, uint8_t addr, uint8_t reg, uint8_t data)
 {
     addr <<= 1;
 
@@ -129,7 +129,7 @@ int8_t i2c_write(i2c_s* self, uint8_t addr, uint8_t reg, uint8_t data)
     return 0;
 }
 
-int8_t i2c_read(i2c_s* self, uint8_t addr_, uint8_t reg, uint8_t len, uint8_t* buf)
+int8_t i2c_read(I2c* self, uint8_t addr_, uint8_t reg, uint8_t len, uint8_t* buf)
 {
     addr_ <<= 1;
 

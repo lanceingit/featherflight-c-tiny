@@ -45,15 +45,15 @@ uint8_t log_att_write(uint8_t id, uint16_t rate, void* p)
 {
     struct log_att_s pkt = {
     	LOG_PACKET_HEADER_INIT(id),
-		.roll = att->roll,
-		.pitch = att->pitch,
-		.yaw = att->yaw,
+		.roll = EST_ROLL,
+		.pitch = EST_PITCH,
+		.yaw = EST_YAW,
 		.roll_sp = 0.0f,
 		.pitch_sp = 0.0f,
 		.yaw_sp = 0.0f,
-		.roll_rate = att->roll_rate,
-		.pitch_rate = att->pitch_rate,
-		.yaw_rate = att->yaw_rate,
+		.roll_rate = EST_ROLL_RATE,
+		.pitch_rate = EST_PITCH_RATE,
+		.yaw_rate = EST_YAW_RATE,
 		.roll_rate_sp = 0.0f,
 		.pitch_rate_sp = 0.0f,
 		.yaw_rate_sp = 0.0f,
@@ -68,17 +68,17 @@ uint8_t log_imu_write(uint8_t id, uint16_t rate, void* p)
 {
     struct log_imu_s pkt = {
     	LOG_PACKET_HEADER_INIT(id),
-		.acc_x = imu->acc.x,
-		.acc_y = imu->acc.y,
-		.acc_z = imu->acc.z,
-		.gyro_x = imu->gyro.x,
-		.gyro_y = imu->gyro.y,
-		.gyro_z = imu->gyro.z,
-		.mag_x = compass->mag.x,
-		.mag_y = compass->mag.y,
-		.mag_z = compass->mag.z,
-		.temp_acc = imu->temp,
-		.temp_gyro = imu->temp,
+		.acc_x = SENS_ACC.x,
+		.acc_y = SENS_ACC.y,
+		.acc_z = SENS_ACC.z,
+		.gyro_x = SENS_GYRO.x,
+		.gyro_y = SENS_GYRO.y,
+		.gyro_z = SENS_GYRO.z,
+		.mag_x = SENS_MAG.x,
+		.mag_y = SENS_MAG.y,
+		.mag_z = SENS_MAG.z,
+		.temp_acc = SENS_IMU_TEMP,
+		.temp_gyro = SENS_IMU_TEMP,
 		.temp_mag = 0.0f,
     };
 	uint8_t len = sizeof(struct log_imu_s);
@@ -91,9 +91,9 @@ uint8_t log_sens_write(uint8_t id, uint16_t rate, void* p)
 {
     struct log_sens_s pkt = {
     	LOG_PACKET_HEADER_INIT(id),
-		.baro_pres = baro->pressure,
-		.baro_alt =  baro->altitude,
-		.baro_temp = baro->temperature,
+		.baro_pres = SENS_PRESS,
+		.baro_alt =  SENS_BARO_ALT,
+		.baro_temp = SENS_BARO_TEMP,
     };
 	uint8_t len = sizeof(struct log_sens_s);
 	memcpy(p, &pkt, len);

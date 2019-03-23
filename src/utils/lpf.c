@@ -2,7 +2,7 @@
 #include "mathlib.h"
 #include "lpf.h"
 
-void lpf2p_set_cutoff_frequency(lpf2p_s* self, float sample_freq, float cutoff_freq)
+void lpf2p_set_cutoff_frequency(Lpf2p* self, float sample_freq, float cutoff_freq)
 {
 	self->cutoff_freq = cutoff_freq;
     if (self->cutoff_freq <= 0.0f) {
@@ -19,7 +19,7 @@ void lpf2p_set_cutoff_frequency(lpf2p_s* self, float sample_freq, float cutoff_f
     self->a2 = (1.0f-2.0f*cos_f(M_PI_F/4.0f)*ohm+ohm*ohm)/c;
 }
 
-void lpf2p_init(lpf2p_s* self, float sample_freq, float cutoff_freq)
+void lpf2p_init(Lpf2p* self, float sample_freq, float cutoff_freq)
 {
 	self->cutoff_freq=cutoff_freq;
 	self->a1=0.0f;
@@ -33,7 +33,7 @@ void lpf2p_init(lpf2p_s* self, float sample_freq, float cutoff_freq)
 	lpf2p_set_cutoff_frequency(self, sample_freq, cutoff_freq);
 }
 
-float lpf2p_apply(lpf2p_s* self, float sample)
+float lpf2p_apply(Lpf2p* self, float sample)
 {
     if (self->cutoff_freq <= 0.0f) {
         // no filtering
@@ -55,7 +55,7 @@ float lpf2p_apply(lpf2p_s* self, float sample)
     return output;
 }
 
-float lpf2p_reset(lpf2p_s* self, float sample) {
+float lpf2p_reset(Lpf2p* self, float sample) {
 	float dval = sample / (self->b0 + self->b1 + self->b2);
 	self->delay_element_1 = dval;
 	self->delay_element_2 = dval;
@@ -63,12 +63,12 @@ float lpf2p_reset(lpf2p_s* self, float sample) {
 }
 
 
-void lpf1p_init(lpf1p_s* self, float sample_freq, float cutoff_freq)
+void lpf1p_init(Lpf1p* self, float sample_freq, float cutoff_freq)
 {
     self->k = sample_freq / (1.0f/(2.0f*M_PI_F*cutoff_freq) + sample_freq);   
 }
 
-float lpf1p_apply(lpf1p_s* self, float sample)
+float lpf1p_apply(Lpf1p* self, float sample)
 {
     self->state = self->state + self->k * (sample - self->state);
     return self->state;    

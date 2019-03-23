@@ -6,9 +6,9 @@
 #include "debug.h"
 #include "lpf.h"
 
-imu_s* imu;
-compass_s* compass;
-baro_s* baro;
+Imu* imu;
+Compass* compass;
+Baro* baro;
 
 void imu_gyro_cal(void)         
 {
@@ -76,7 +76,7 @@ void imu_gyro_cal(void)
 	}
 }
 
-void imu_register(imu_s* item)
+void imu_register(Imu* item)
 {
     imu = item;
 }
@@ -86,7 +86,7 @@ void imu_update(void)
 	Vector acc; 
 	Vector gyro;
 
-	imu->update(&acc, &gyro);
+	(*imu->update)(&acc, &gyro);
 
     rotate_3f(imu->rotation, &acc.x, &acc.y, &acc.z);
     imu->acc.x = lpf2p_apply(&imu->acc_filter_x, acc.x);
@@ -106,7 +106,7 @@ void imu_update(void)
 	imu->is_update = true;
 }
 
-void compass_register(compass_s* item)
+void compass_register(Compass* item)
 {
     compass = item;	
 }
@@ -116,7 +116,7 @@ void compass_update(void)
 	compass->update();
 }
 
-void baro_register(baro_s* item)
+void baro_register(Baro* item)
 {
     baro = item;		
 }

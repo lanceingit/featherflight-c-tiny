@@ -10,13 +10,13 @@ enum alt_scene_e
 };
 
 
-struct stick_s
+typedef struct 
 {
     float roll;
     float pitch;
     float yaw;
     float thrust;
-};
+} Stick;
 
 bool system_armed(void);
 
