@@ -13,10 +13,10 @@ typedef struct
     float* data;
 } Matrix;
 
-void matrix_init(Matrix* m, uint8_t row, uint8_t column);
+void matrix_init(Matrix* self, uint8_t row, uint8_t column);
 float matrix_item(Matrix m, uint8_t row, uint8_t column);
-void matrix_separate(Matrix* m);
-void matrix_destroy(Matrix* m);
+void matrix_separate(Matrix* self);
+void matrix_destroy(Matrix* self);
 float matrix_trace(Matrix m);
 Matrix matrix_mul(Matrix m1, Matrix m2);
 Matrix matrix_scalar(Matrix m, float s);

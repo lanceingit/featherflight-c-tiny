@@ -10,7 +10,7 @@ typedef struct
 
 Spi* spi_open(SPI_TypeDef* SPIx);
 int8_t spi_transfer_byte(Spi* self, uint8_t* out, uint8_t in);
-int8_t spi_transfer(Spi* self, uint8_t *out, const uint8_t *in, int len);
+int8_t spi_transfer(Spi* self, uint8_t* out, const uint8_t* in, uint16_t len);
 void spi_set_divisor(Spi* self, uint16_t divisor);
 
 

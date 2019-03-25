@@ -94,7 +94,7 @@ int8_t spi_transfer_byte(Spi* self, uint8_t* out, uint8_t in)
 
 
 
-int8_t spi_transfer(Spi* self, uint8_t *out, const uint8_t *in, int len)
+int8_t spi_transfer(Spi* self, uint8_t* out, const uint8_t* in, uint16_t len)
 {
     uint16_t spiTimeout = SPI_TIMEOUT;
 

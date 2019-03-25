@@ -12,6 +12,10 @@
 #include <time.h> 
 #endif
 
+#ifdef F3_EVO
+#define US_PER_TICK     10
+#endif
+
 static volatile times_t timer_cnt = 0;
 #ifdef LINUX 
 static struct timespec boot_time;
@@ -86,7 +90,7 @@ bool timer_is_timeout(times_t* t)
 times_t timer_now(void)
 {
 #ifdef F3_EVO     
-	return timer_cnt*10;
+	return timer_cnt*US_PER_TICK;
 #elif LINUX
     struct timespec now;
     clock_gettime(CLOCK_MONOTONIC ,&now);
@@ -153,7 +157,7 @@ void sleep(float s)
     volatile times_t wait;
 
     wait = timer_new((uint32_t)(s*1000*1000));
-    while (!timer_is_timeout(&wait));
+    while (!timer_is_timeout((times_t*)&wait));
 }
 #endif
 

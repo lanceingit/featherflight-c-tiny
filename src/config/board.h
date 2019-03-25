@@ -15,6 +15,7 @@
 #define MS5611_I2C      I2C1
 
 #define SPI_FLAHS_SPI   SPI2
+#define FLASH_PAGESIZE  256
 
 #define INERTIAL_SENSOR_ROTATION    ROTATION_ROLL_180_YAW_270
 
@@ -29,6 +30,8 @@
 #elif LINUX
 
 #define SYSTEM_CYCLE              (1000)
+
+#define FLASH_PAGESIZE  8096            
 
 #define MTD_FILE_SIZE_MAX (10*1024*1024)
 #define MTD_PATH "/tmp/file.mtd"

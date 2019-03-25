@@ -45,7 +45,7 @@ void fifo_test(void)
     uint8_t tmp=0;
     
 
-    fifo_create(&f, buf, 10);
+    fifo_init(&f, buf, 10);
 
     for(i=0; i<3; i++) {
         for(j=0; j<7; j++) {

@@ -5,20 +5,53 @@
 
 #include "log.h"
 
-enum log_status
-{
-	LOG_READ,
-	LOG_IDLE,
+
+MavlinkLog mavlink_log = {
+    .status = LOG_IDLE,
 };
 
+static MavlinkLog* this = &mavlink_log;
 
 
-static mavlink_log_data_t log_data;
+static void handle_log_request_list(mavlink_message_t* msg)
+{
+//    mavlink_log_request_list_t packet;
+//    mavlink_msg_log_request_list_decode(msg, &packet);
 
-static enum log_status status = LOG_IDLE;
+    mavlink_msg_log_entry_send(MAV_CH,
+    						     0, 1, 1, 0, log_get_size());
+}
 
-static void handle_log_request_list(mavlink_message_t* msg);
-static void handle_log_request_data(mavlink_message_t* msg);
+static void handle_log_request_data(mavlink_message_t* msg)
+{
+	log_stop();
+    
+    mavlink_log_request_data_t req;
+    
+    mavlink_msg_log_request_data_decode(msg, &req);
+    
+    this->log_data.ofs = req.ofs;
+
+	uint32_t last_data = log_get_size() - this->log_data.ofs;
+
+//	while(last_data > 0)
+	{
+		memset(this->log_data.data, 0, MAVLINK_MSG_LOG_DATA_FIELD_DATA_LEN);
+		this->log_data.count = log_read(this->log_data.ofs, this->log_data.data, last_data > MAVLINK_MSG_LOG_DATA_FIELD_DATA_LEN ? MAVLINK_MSG_LOG_DATA_FIELD_DATA_LEN : last_data);
+        if(this->log_data.count > 0) {
+            this->log_data.id = 0;
+            mavlink_msg_log_data_send_struct(MAV_CH, &this->log_data);
+
+            this->log_data.ofs += this->log_data.count;
+            last_data =	log_get_size() - this->log_data.ofs;
+        }
+	}
+    
+    if(last_data > 0)
+    {
+        this->status = LOG_READ;
+    }
+}
 
 void mavlink_log_handle(mavlink_message_t* msg)
 {
@@ -41,67 +74,30 @@ void mavlink_log_handle(mavlink_message_t* msg)
 	}
 }
 
-static void handle_log_request_list(mavlink_message_t* msg)
-{
-//    mavlink_log_request_list_t packet;
-//    mavlink_msg_log_request_list_decode(msg, &packet);
-
-    mavlink_msg_log_entry_send(MAV_CH,
-    						     0, 1, 1, 0, log_get_size());
-}
-
-static void handle_log_request_data(mavlink_message_t* msg)
-{
-	log_stop();
-    
-    mavlink_log_request_data_t req;
-    
-    mavlink_msg_log_request_data_decode(msg, &req);
-    
-    log_data.ofs = req.ofs;
-
-	uint32_t last_data = log_get_size() - log_data.ofs;
-
-//	while(last_data > 0)
-	{
-		memset(log_data.data, 0, MAVLINK_MSG_LOG_DATA_FIELD_DATA_LEN);
-		log_data.count = log_read(log_data.ofs, log_data.data, last_data > MAVLINK_MSG_LOG_DATA_FIELD_DATA_LEN ? MAVLINK_MSG_LOG_DATA_FIELD_DATA_LEN : last_data);
-		log_data.id = 0;
-        mavlink_msg_log_data_send_struct(MAV_CH, &log_data);
-
-		log_data.ofs += log_data.count;
-		last_data =	log_get_size() - log_data.ofs;
-	}
-    
-    if(last_data > 0)
-    {
-        status = LOG_READ;
-    }
-}
-
 void mavlink_log_run(void)
 {
-	if(status == LOG_READ)
+	if(this->status == LOG_READ)
 	{
-        uint32_t last_data = log_get_size() - log_data.ofs;
+        uint32_t last_data = log_get_size() - this->log_data.ofs;
 
     //	while(last_data > 0)
         {
-            memset(log_data.data, 0, MAVLINK_MSG_LOG_DATA_FIELD_DATA_LEN);
-            log_data.count = log_read(log_data.ofs, log_data.data, last_data > MAVLINK_MSG_LOG_DATA_FIELD_DATA_LEN ? MAVLINK_MSG_LOG_DATA_FIELD_DATA_LEN : last_data);
-            log_data.id = 0;
-            mavlink_msg_log_data_send_struct(MAV_CH, &log_data);
+            memset(this->log_data.data, 0, MAVLINK_MSG_LOG_DATA_FIELD_DATA_LEN);
+            this->log_data.count = log_read(this->log_data.ofs, this->log_data.data, last_data > MAVLINK_MSG_LOG_DATA_FIELD_DATA_LEN ? MAVLINK_MSG_LOG_DATA_FIELD_DATA_LEN : last_data);
+            if(this->log_data.count > 0) {
+                this->log_data.id = 0;
+                mavlink_msg_log_data_send_struct(MAV_CH, &this->log_data);
 
-            log_data.ofs += log_data.count;
-            last_data =	log_get_size() - log_data.ofs;
+                this->log_data.ofs += this->log_data.count;
+                last_data =	log_get_size() - this->log_data.ofs;
+            }            
         }
         
         if(last_data <= 0)
         {
-            status = LOG_IDLE;
+            this->status = LOG_IDLE;
             
-            log_data.ofs = 0;
+            this->log_data.ofs = 0;
         }
-
 	}
 }

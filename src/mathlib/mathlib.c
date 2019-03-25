@@ -128,8 +128,8 @@ void variance_create(Variance* self, uint8_t size)
 		self->data[i] = 0.0f;
 		self->data_sq[i] = 0.0f;
 	}
-	fifo_f_create(&self->fifo, self->data, self->size);
-	fifo_f_create(&self->fifo_sq, self->data_sq, self->size);
+	fifo_f_init(&self->fifo, self->data, self->size);
+	fifo_f_init(&self->fifo_sq, self->data_sq, self->size);
 }
 
 float variance_cal(Variance* self, float val)

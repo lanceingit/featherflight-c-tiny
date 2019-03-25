@@ -8,10 +8,10 @@
 static float tmp_buf[30*30];
 static Matrix tmp0 = {30,30,tmp_buf};
 
-void matrix_init(Matrix* m, uint8_t row, uint8_t column)
+void matrix_init(Matrix* self, uint8_t row, uint8_t column)
 {
-    m->row = row;
-    m->column = column;
+    self->row = row;
+    self->column = column;
 }
 
 float matrix_item(Matrix m, uint8_t row, uint8_t column)
@@ -19,20 +19,20 @@ float matrix_item(Matrix m, uint8_t row, uint8_t column)
     return m.data[row*m.row + column];
 }
 
-void matrix_separate(Matrix* m)
+void matrix_separate(Matrix* self)
 {
-    uint16_t len = m->row*m->column*sizeof(float);
+    uint16_t len = self->row*self->column*sizeof(float);
     float* buf = mm_malloc(len);       
     if(buf != NULL) {
-        memcpy(buf, m->data, len);
-        m->data = buf;
+        memcpy(buf, self->data, len);
+        self->data = buf;
     }
 }
 
-void matrix_destroy(Matrix* m)
+void matrix_destroy(Matrix* self)
 {
-    mm_free(m->data);
-    m->data = NULL;
+    mm_free(self->data);
+    self->data = NULL;
 }
 
 float matrix_trace(Matrix m)

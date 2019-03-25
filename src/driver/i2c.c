@@ -1,13 +1,10 @@
 #include "board.h"
 
-
 #include "i2c.h"
+
 
 #define I2C_SHORT_TIMEOUT   ((uint32_t)0x1000)
 #define I2C_LONG_TIMEOUT    ((uint32_t)(10 * I2C_SHORT_TIMEOUT))
-
-//static uint32_t i2cTimeout;
-
 
 
 static I2c i2c1 = {.inited = false};

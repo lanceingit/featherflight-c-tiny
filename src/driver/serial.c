@@ -53,8 +53,8 @@ Serial* serial_open(USART_TypeDef *USARTx, uint32_t baud, uint8_t* rxbuf, uint16
     self->txbuf_size = txbuf_size;
     self->txbuf = txbuf;
     
-    fifo_create(&self->rx_fifo, rxbuf, rxbuf_size);
-    fifo_create(&self->tx_fifo, txbuf, txbuf_size);
+    fifo_init(&self->rx_fifo, rxbuf, rxbuf_size);
+    fifo_init(&self->tx_fifo, txbuf, txbuf_size);
 
 
     // reduce oversampling to allow for higher baud rates
@@ -79,14 +79,14 @@ Serial* serial_open(USART_TypeDef *USARTx, uint32_t baud, uint8_t* rxbuf, uint16
     return self;
 }
 
-void serial_write_ch(Serial* self, unsigned char ch) 
+void serial_write_one(Serial* self, uint8_t val) 
 {
-    fifo_write_force(&self->tx_fifo, ch);
+    fifo_write_force(&self->tx_fifo, val);
 
     USART_ITConfig(self->USARTx, USART_IT_TXE, ENABLE);
 }
 
-void serial_write(Serial* self, unsigned char* buf, uint16_t len) 
+void serial_write(Serial* self, uint8_t* buf, uint16_t len) 
 {
     for(uint16_t i=0; i<len; i++)
     {
@@ -101,9 +101,9 @@ bool serial_available(Serial* self)
 	return !fifo_is_empty(&self->rx_fifo);
 }
 
-int8_t serial_read(Serial* self, uint8_t* ch) 
+int8_t serial_read(Serial* self, uint8_t* val) 
 {
-    return fifo_read(&self->rx_fifo, ch);
+    return fifo_read(&self->rx_fifo, val);
 }
 
 

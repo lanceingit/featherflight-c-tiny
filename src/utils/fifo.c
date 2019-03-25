@@ -15,7 +15,7 @@
 
 #define USE_MODIFY_FIFO         0
 
-void fifo_f_create(FifoF *self, float *buf, uint16_t size)
+void fifo_f_init(FifoF *self, float *buf, uint16_t size)
 {
     self->head = 0;
     self->tail = 0;
@@ -93,7 +93,7 @@ uint16_t fifo_f_get_count(FifoF *self)
 
 /**********************/
 
-void fifo_create(Fifo *self, uint8_t *buf, uint16_t size)
+void fifo_init(Fifo *self, uint8_t *buf, uint16_t size)
 {
     self->head = 0;
     self->tail = 0;

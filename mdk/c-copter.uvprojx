@@ -10,8 +10,7 @@
       <TargetName>Target 1</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
-      <pCCUsed>5060750::V5.06 update 6 (build 750)::ARMCC</pCCUsed>
-      <uAC6>0</uAC6>
+      <pCCUsed>5060061::V5.06 update 1 (build 61)::ARMCC</pCCUsed>
       <TargetOption>
         <TargetCommonOption>
           <Device>STM32F303CC</Device>
@@ -324,15 +323,11 @@
             <uThumb>0</uThumb>
             <uSurpInc>0</uSurpInc>
             <uC99>1</uC99>
-            <uGnu>0</uGnu>
             <useXO>0</useXO>
             <v6Lang>5</v6Lang>
             <v6LangP>3</v6LangP>
             <vShortEn>1</vShortEn>
             <vShortWch>1</vShortWch>
-            <v6Lto>0</v6Lto>
-            <v6WtE>0</v6WtE>
-            <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
               <Define>STM32F303xC,USE_STDPERIPH_DRIVER,ARM_MATH_CM4,__FPU_PRESENT=1,__USE_C99_MATH</Define>
@@ -350,7 +345,6 @@
             <NoWarn>0</NoWarn>
             <uSurpInc>0</uSurpInc>
             <useXO>0</useXO>
-            <uClangAs>0</uClangAs>
             <VariousControls>
               <MiscControls></MiscControls>
               <Define></Define>
@@ -1321,11 +1315,6 @@
               <FileType>1</FileType>
               <FilePath>..\src\pilot\alt_control.c</FilePath>
             </File>
-            <File>
-              <FileName>output.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\src\pilot\output.c</FilePath>
-            </File>
           </Files>
         </Group>
         <Group>
@@ -1360,6 +1349,11 @@
               <FileName>scheduler.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\src\modules\scheduler.c</FilePath>
+            </File>
+            <File>
+              <FileName>debug.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\modules\debug.c</FilePath>
             </File>
           </Files>
         </Group>

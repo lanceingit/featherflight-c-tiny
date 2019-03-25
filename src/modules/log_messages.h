@@ -1,11 +1,6 @@
 #pragma once
 
 
-
-
-
-
-
 #define LOG_DEF(_name, _rate, _format, _labels) { \
 	.format = { \
 		.length = sizeof(struct log_##_name##_s), \
@@ -18,11 +13,6 @@
 }
 
 #define LOG_FORMAT_MSG	  0x80
-
-
-
-
-
 
 
 
