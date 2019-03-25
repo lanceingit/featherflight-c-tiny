@@ -264,6 +264,7 @@ int main()
     mavlink_init();
     wwlink_init();
     cli_init();
+    debug_init();
 
 #ifdef F3_EVO    
     imu_register(&mpu6050.heir);
