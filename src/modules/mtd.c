@@ -118,10 +118,12 @@ int32_t mtd_read(uint32_t offset, uint8_t* data, uint16_t len)
 void mtd_sync()
 {
 #ifdef F3_EVO	
-	if(!this->has_erase && this->write_addr % spi_flash_get_pageSize() == 0)
+    // when addr over a sector, erase
+	if(!this->has_erase && this->write_addr % spi_flash_get_sectorSize() == 0)
 	{
 		this->status = MTD_ERASE;
 	}
+    // program every page
 	else if(fifo_get_count(&this->write_fifo) > spi_flash_get_pageSize())
 	{
 		if(this->status != MTD_PROGRAM_CONTINUE)
@@ -164,7 +166,7 @@ void mtd_sync()
 		}
 		else
 		{
-			this->status = MTD_PROGRAM_CONTINUE;
+			this->status = MTD_PROGRAM_CONTINUE;   //flash program fail, need to program next time
 		}
 	}
 	else if(this->status == MTD_PROGRAM_CONTINUE)

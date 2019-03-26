@@ -22,6 +22,7 @@ typedef struct
 bool spi_flash_init(void);
 
 uint16_t spi_flash_get_pageSize(void);
+uint32_t spi_flash_get_sectorSize(void);
 uint32_t spi_flash_get_totalSize(void);
 
 int8_t spi_flash_eraseSector(uint32_t address);

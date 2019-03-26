@@ -191,6 +191,11 @@ uint32_t spi_flash_get_totalSize(void)
     return this->totalSize;
 }
 
+uint32_t spi_flash_get_sectorSize(void)
+{
+    return this->sectorSize;
+}
+
 uint16_t spi_flash_get_pageSize(void)
 {
     return this->pageSize;

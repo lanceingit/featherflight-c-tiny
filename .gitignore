@@ -1,5 +1,8 @@
 # Prerequisites
 *.d
+*.lst
+*.crf
+
 
 # Object files
 *.o
@@ -50,3 +53,4 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+mdk/obj
