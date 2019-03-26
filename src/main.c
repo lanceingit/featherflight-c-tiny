@@ -258,7 +258,6 @@ int main()
 #ifdef F3_EVO    
     spi_flash_init();
 #endif        
-    mtd_init();
     mtd_test();
     log_init();
     mavlink_init();

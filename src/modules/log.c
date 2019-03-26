@@ -129,7 +129,7 @@ static times_t timer[sizeof(log_list) / sizeof(log_list[0])];
 
 uint32_t log_get_size(void)
 {
-	return mtd_get_store();
+	return mtd_get_store(&this->mtd);
 }
 
 void log_stop(void)
@@ -142,10 +142,38 @@ bool log_need_record(void)
 	return this->record;
 }
 
-void log_init()
+void log_write(void* pkt, uint16_t len)
+{
+    mtd_write(&this->mtd, (uint8_t*)pkt, len);
+}
+
+int32_t log_read(uint32_t offset, uint8_t* data, uint16_t len)
+{
+	return mtd_read(&this->mtd, offset, data, len);
+}
+
+void log_run(void)
+{
+	// if(timer_now() < 3*1000*1000) return; 
+	if(!mtd_is_full(&this->mtd) && log_need_record()) {
+		for(uint8_t i=0; i<log_num; i++) {
+			if(log_list[i].rate != 0) {
+				if(timer_check(&timer[log_list[i].format.type], 1*1000*1000/log_list[i].rate)) {
+					uint8_t len = log_list[i].pack(log_list[i].format.type, log_list[i].rate, (void*)this->buf);    
+					// PRINT("log_write len:%d\n", len);
+					log_write(this->buf, len);
+				}
+			}
+		}
+	}
+	mtd_sync(&this->mtd);
+}
+
+void log_init(void)
 {
 	cli_regist("log", log_shell);
 	this->record = true;
+    mtd_init(&this->mtd, 1, FLASH_SECTOR_NUM-1);
 
 	struct {
 		uint8_t head1;
@@ -177,34 +205,6 @@ void log_init()
 	}
 }
 
-void log_write(void* pkt, uint16_t len)
-{
-    mtd_write((uint8_t*)pkt, len);
-}
-
-int32_t log_read(uint32_t offset, uint8_t* data, uint16_t len)
-{
-	return mtd_read(offset, data, len);
-}
-
-void log_run(void)
-{
-	// if(timer_now() < 3*1000*1000) return; 
-	if(!mtd_is_full() && log_need_record()) {
-		for(uint8_t i=0; i<log_num; i++) {
-			if(log_list[i].rate != 0) {
-				if(timer_check(&timer[log_list[i].format.type], 1*1000*1000/log_list[i].rate)) {
-					uint8_t len = log_list[i].pack(log_list[i].format.type, log_list[i].rate, (void*)this->buf);    
-					// PRINT("log_write len:%d\n", len);
-					log_write(this->buf, len);
-				}
-			}
-		}
-	}
-	mtd_sync();
-}
-
-
 void log_shell(int argc, char *argv[])
 {
 	if(argc == 2) {
@@ -215,6 +215,9 @@ void log_shell(int argc, char *argv[])
 			}
 			return;
 		}
+        else if(strcmp(argv[1],"mtd") == 0) {
+            mtd_print(&this->mtd);
+        }
 	}
 	cli_device_write("missing command: try 'list' ");
 }

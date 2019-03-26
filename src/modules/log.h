@@ -1,5 +1,7 @@
 #pragma once
 
+#include "mtd.h"
+
 #define LOG_PACKET_HEADER	       uint8_t head1, head2, msg_type; uint32_t ms;
 #define LOG_PACKET_HEADER_INIT(id) .head1 = HEAD_BYTE1, .head2 = HEAD_BYTE2, .msg_type = id, .ms = (timer_now()/1000)
 
@@ -7,6 +9,7 @@
 typedef struct {
     bool record;
     uint8_t buf[200];
+    Mtd mtd;
 } Log;
 
 

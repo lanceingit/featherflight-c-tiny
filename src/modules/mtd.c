@@ -15,75 +15,85 @@
 #include "debug.h"
 
 
-Mtd mtd = {
-    .is_full = false,
-#if LINUX
-    .fd = -1,
-#endif    
-};
-
-static Mtd* this=&mtd;
-
-void mtd_shell(int argc, char *argv[]);
-
-
-void mtd_init()
-{
-	cli_regist("mtd", mtd_shell);
-	fifo_init(&this->write_fifo, this->write_buf, WRITE_BUF_SIZE);
-	this->write_addr = 0;
-	this->is_full = false;
-#ifdef F3_EVO	
-	this->read_addr = 0;
-	this->status = MTD_IDLE;
-	this->has_erase = false;
-#elif LINUX
-	mtd_fd = open(MTD_PATH,O_RDWR | O_CREAT | O_TRUNC);
-#endif	
-}
-
-void mtd_test()
+void mtd_test(void)
 {
 #ifdef F3_EVO	
+    Mtd mtd_test;
+    
+    mtd_init(&mtd_test, 0, 1);
+    
 	if(spi_flash_eraseSector(0) >= 0)
 //	while(1)
 	{
 		for(uint16_t i=0; i<spi_flash_get_pageSize(); i++)
 		{
-			this->page_buf[i] = i;
+			mtd_test.page_buf[i] = i;
 		}
 
-		if(spi_flash_pageProgram(0, this->page_buf, spi_flash_get_pageSize()) >= 0)
+		if(spi_flash_pageProgram(0, mtd_test.page_buf, spi_flash_get_pageSize()) >= 0)
 		{
-			memset(this->page_buf, 0, spi_flash_get_pageSize());
+			memset(mtd_test.page_buf, 0, spi_flash_get_pageSize());
 
-			int32_t read_len = spi_flash_readBytes(0, this->page_buf, spi_flash_get_pageSize());
+			int32_t read_len = spi_flash_readBytes(0, mtd_test.page_buf, spi_flash_get_pageSize());
 
-			while(spi_flash_eraseSector(this->read_addr) < 0);  
+			while(spi_flash_eraseSector(mtd_test.read_addr) < 0);  
  
-            memset(this->page_buf, 0, spi_flash_get_pageSize());
-            spi_flash_readBytes(0, this->page_buf, spi_flash_get_pageSize());
+            memset(mtd_test.page_buf, 0, spi_flash_get_pageSize());
+            spi_flash_readBytes(0, mtd_test.page_buf, spi_flash_get_pageSize());
 
 		}
 	}
 #endif	
 }
 
-void mtd_write(uint8_t* data, uint16_t len)
+int8_t mtd_init(Mtd* self, uint16_t sector_start, uint16_t sector_cnt)
+{
+    if(sector_start > FLASH_SECTOR_NUM) return -1;
+    if(sector_start+sector_cnt > FLASH_SECTOR_NUM) return -1;
+    
+    self->start_addr = sector_start*FLASH_SECTORSIZE;
+    self->end_addr = self->start_addr+sector_cnt*FLASH_SECTORSIZE;
+ 	self->write_addr = self->start_addr;
+
+	fifo_init(&self->write_fifo, self->write_buf, WRITE_BUF_SIZE);
+    
+	self->is_full = false;
+#ifdef F3_EVO	
+	self->read_addr = self->start_addr;
+	self->status = MTD_IDLE;
+	self->has_erase = false;
+#elif LINUX
+	self->fd = open(MTD_PATH,O_RDWR | O_CREAT | O_TRUNC);
+#endif	
+    
+    return 0;
+}
+
+int8_t mtd_seek(Mtd* self, uint32_t offset)
+{
+    if(self->start_addr + offset >= self->end_addr) return -1; 
+    self->write_addr = self->start_addr + offset;
+    
+    return 0;
+}
+
+int8_t mtd_write(Mtd* self, uint8_t* data, uint16_t len)
 {
 	// PRINT("space:%u len:%u ", mtd_get_space(), len);
-	if(mtd_get_space() > len) {
+	if(mtd_get_space(self) > len) {
 		for(uint16_t i=0; i<len; i++) {
-			int8_t ret = fifo_write(&this->write_fifo, data[i]);
+			int8_t ret = fifo_write(&self->write_fifo, data[i]);
 			if(ret < 0) {
 				// PRINT("mtd buf full\n");
+                return ret;
 			}
 		}
-		this->is_full = false;
+		self->is_full = false;
 		// PRINT("free\n");
 	} else {
-		this->is_full = true;
+		self->is_full = true;
 		// PRINT("full\n");
+        return -1;
 	}
 
 	// if(mtd_get_space() < 4000) {
@@ -93,17 +103,19 @@ void mtd_write(uint8_t* data, uint16_t len)
 	// 	PRINT("write");
 	// 	fifo_print(&write_fifo);
 	// }
+    
+    return 0;
 }
 
-int32_t mtd_read(uint32_t offset, uint8_t* data, uint16_t len)
+int32_t mtd_read(Mtd* self, uint32_t offset, uint8_t* data, uint16_t len)
 {
 #ifdef F3_EVO	
-	int32_t read_len = spi_flash_readBytes(offset, data, len);
+	int32_t read_len = spi_flash_readBytes(self->start_addr + offset, data, len);
     
     if(read_len > 0) {
-        this->read_addr += read_len;
+        self->read_addr += read_len;
 
-        if(this->read_addr == this->write_addr) this->read_addr = 0;        
+        if(self->read_addr == self->write_addr) self->read_addr = self->start_addr;        
     }
 
 	return read_len;
@@ -115,48 +127,48 @@ int32_t mtd_read(uint32_t offset, uint8_t* data, uint16_t len)
 }
 
 
-void mtd_sync()
+void mtd_sync(Mtd* self)
 {
 #ifdef F3_EVO	
     // when addr over a sector, erase
-	if(!this->has_erase && this->write_addr % spi_flash_get_sectorSize() == 0)
+	if(!self->has_erase && self->write_addr % FLASH_SECTORSIZE == 0)
 	{
-		this->status = MTD_ERASE;
+		self->status = MTD_ERASE;
 	}
     // program every page
-	else if(fifo_get_count(&this->write_fifo) > spi_flash_get_pageSize())
+	else if(fifo_get_count(&self->write_fifo) > FLASH_PAGESIZE)
 	{
-		if(this->status != MTD_PROGRAM_CONTINUE)
+		if(self->status != MTD_PROGRAM_CONTINUE)
 		{
-			this->status = MTD_PROGRAM;
+			self->status = MTD_PROGRAM;
 		}
 	}
 
 
-	if(this->status == MTD_ERASE)
+	if(self->status == MTD_ERASE)
 	{
-		if(spi_flash_eraseSector(this->write_addr) >= 0)
+		if(spi_flash_eraseSector(self->write_addr) >= 0)
 		{
-			this->has_erase = true;
-            this->status = MTD_IDLE;
+			self->has_erase = true;
+            self->status = MTD_IDLE;
 //			memset(_page_buf, 0, spi_flash_get_pageSize());
 //
 //			int32_t read_len = spi_flash_readBytes(0, _page_buf, spi_flash_get_pageSize());
 
 		}
 	}
-	else if(this->status == MTD_PROGRAM)
+	else if(self->status == MTD_PROGRAM)
 	{
-		for(uint16_t i=0; i<spi_flash_get_pageSize(); i++)
+		for(uint16_t i=0; i<FLASH_PAGESIZE; i++)
 		{
-			 fifo_read(&this->write_fifo, &this->page_buf[i]);
+			 fifo_read(&self->write_fifo, &self->page_buf[i]);
 		}
 
-		if(spi_flash_pageProgram(this->write_addr, this->page_buf, spi_flash_get_pageSize()) >= 0)
+		if(spi_flash_pageProgram(self->write_addr, self->page_buf, FLASH_PAGESIZE) >= 0)
 		{
-			this->write_addr += spi_flash_get_pageSize();
-			this->has_erase = false;
-            this->status = MTD_IDLE;
+			self->write_addr += FLASH_PAGESIZE;
+			self->has_erase = false;
+            self->status = MTD_IDLE;
             
 //			memset(_page_buf, 0x5C, spi_flash_get_pageSize());
 
@@ -166,16 +178,16 @@ void mtd_sync()
 		}
 		else
 		{
-			this->status = MTD_PROGRAM_CONTINUE;   //flash program fail, need to program next time
+			self->status = MTD_PROGRAM_CONTINUE;   //flash program fail, need to program next time
 		}
 	}
-	else if(this->status == MTD_PROGRAM_CONTINUE)
+	else if(self->status == MTD_PROGRAM_CONTINUE)
 	{
-		if(spi_flash_pageProgram(this->write_addr, this->page_buf, spi_flash_get_pageSize()) >= 0)
+		if(spi_flash_pageProgram(self->write_addr, self->page_buf, FLASH_PAGESIZE) >= 0)
 		{
-			this->write_addr += spi_flash_get_pageSize();
-			this->has_erase = false;
-            this->status = MTD_IDLE;
+			self->write_addr += FLASH_PAGESIZE;
+			self->has_erase = false;
+            self->status = MTD_IDLE;
 		}
 	}
 #elif LINUX
@@ -205,48 +217,35 @@ void mtd_sync()
 #endif	
 }
 
-uint32_t mtd_get_space()
+uint32_t mtd_get_space(Mtd* self)
 {
-#ifdef F3_EVO	
-	return spi_flash_get_totalSize() - this->write_addr;
-#elif LINUX
-	if(MTD_FILE_SIZE_MAX > write_addr) {
-		return MTD_FILE_SIZE_MAX - write_addr;
+	if(self->end_addr > self->write_addr) {
+		return self->end_addr - self->write_addr;
 	} else {
 		return 0;
 	}
-#else 
-	return 0;
-#endif		
 }
 
-bool mtd_is_full()
+bool mtd_is_full(Mtd* self)
 {
-	return this->is_full;
+	return self->is_full;
 }
 
-uint32_t mtd_get_store()
+uint32_t mtd_get_store(Mtd* self)
 {
-	return this->write_addr;
+	return self->write_addr-self->start_addr;
 }
 
-void mtd_shell(int argc, char *argv[])
+void mtd_print(Mtd* self)
 {
-	if(argc == 2) {
-		if(strcmp(argv[1],"status") == 0) {
-		#ifdef F3_EVO	
-			PRINT("total:\t%u\n", spi_flash_get_totalSize());
-		#elif LINUX
-			PRINT("total:\t%u\n", MTD_FILE_SIZE_MAX);
-		#endif 			
-			PRINT("free:\t%u\n", mtd_get_space());
-			PRINT("occupy:\t%u\n", this->write_addr);
-			PRINT("full:\t%s\n", this->is_full? "yes":"no");
+#ifdef F3_EVO	
+    PRINT("total:\t%u\n", FLASH_SIZE);
+#elif LINUX
+    PRINT("total:\t%u\n", MTD_FILE_SIZE_MAX);
+#endif 			
+    PRINT("free:\t%u\n", mtd_get_space(self));
+    PRINT("occupy:\t%u\n", self->write_addr);
+    PRINT("full:\t%s\n", self->is_full? "yes":"no");
 
-			fifo_print(&this->write_fifo);
-
-			return;
-		}
-	}
-	cli_device_write("missing command: try 'status' ");
+    fifo_print(&self->write_fifo);
 }

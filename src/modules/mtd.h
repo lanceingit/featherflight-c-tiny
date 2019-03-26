@@ -25,22 +25,27 @@ typedef struct {
     int fd;
 #endif
 
-    uint8_t page_buf[FLASH_PAGESIZE];
+    uint32_t start_addr;
+    uint32_t end_addr;
+    uint32_t write_addr;   //offset whith start addr
     Fifo write_fifo;
-    uint8_t write_buf[WRITE_BUF_SIZE];    
-    uint32_t write_addr;
+    uint8_t write_buf[FLASH_PAGESIZE*2];    
+    uint8_t page_buf[FLASH_PAGESIZE];
+
     bool is_full;    
 } Mtd;
 
 
-void mtd_init(void);
 void mtd_test(void);
-void mtd_write(uint8_t* data, uint16_t len);
-int32_t mtd_read(uint32_t offset, uint8_t* data, uint16_t len);
-void mtd_sync(void);
-uint32_t mtd_get_space(void);
-bool mtd_is_full(void);
-uint32_t mtd_get_store(void);
+int8_t mtd_init(Mtd* self, uint16_t sector_start, uint16_t sector_cnt);
+int8_t mtd_seek(Mtd* self, uint32_t offset);
+int8_t mtd_write(Mtd* self, uint8_t* data, uint16_t len);
+int32_t mtd_read(Mtd* self, uint32_t offset, uint8_t* data, uint16_t len);
+void mtd_sync(Mtd* self);
+uint32_t mtd_get_space(Mtd* self);
+bool mtd_is_full(Mtd* self);
+uint32_t mtd_get_store(Mtd* self);
+void mtd_print(Mtd* self);
 
 
 
