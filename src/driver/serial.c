@@ -3,7 +3,7 @@
 #include "serial.h"
 
 
-static Serial serial1 = {.inited=false};
+Serial serial1 = {.inited=false};
 
 
 static void serial_port1_init(void) 

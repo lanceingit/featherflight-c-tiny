@@ -76,6 +76,6 @@ float lpf1p_apply(Lpf1p* self, float sample)
 
 float lpfrc_apply(float last, float in, float k)
 {
-	return ((last * k) + (in * (1.0f - k)));
+	return ((in * k) + (last * (1.0f - k)));
 }
 

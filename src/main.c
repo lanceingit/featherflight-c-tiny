@@ -28,6 +28,7 @@
 #include "mm.h"
 #include "fifo.h"
 #include "motor.h"
+#include "battery.h"
 
 Variance baro_variance;
 float baro_vari;
@@ -201,6 +202,11 @@ void task_motor(void)
     motor_set(motor_index, motor_val);    
 }
 
+void task_batt(void)
+{
+    battery_update();
+}
+
 //void gyro_cal(void)         //TODO:put into sensor
 //{
 //    Vector gyro;
@@ -260,7 +266,7 @@ int main()
 #endif        
     mtd_test();
     log_init();
-    mavlink_init();
+//    mavlink_init();
     wwlink_init();
     cli_init();
     debug_init();
@@ -280,6 +286,7 @@ int main()
 
     fifo_test();
     motor_init();
+    battery_init();
 
     att_est_register(&att_est_q.heir);
     // att_est_register(&att_est_cf.heir);
@@ -292,14 +299,15 @@ int main()
     task_create("imu", 2000, task_imu);
     task_create("compass", (10000000 / 150), task_compass);
     task_create("baro", 25000, task_baro);
-    task_create("att", 2000, task_att);
-   // task_create("alt", 2*1000, task_alt);
-    task_create("cmder", 2000, task_commander);
-    task_create("nav", 2000, task_navigator);
-    task_create("link", 2*1000, task_link);
+//    task_create("att", 2000, task_att);
+//   // task_create("alt", 2*1000, task_alt);
+//    task_create("cmder", 2000, task_commander);
+//    task_create("nav", 2000, task_navigator);
+//    task_create("link", 2*1000, task_link);
     task_create("cli", 100*1000, task_cli);
-    task_create("log", 10*1000, task_log);
-    task_create("motor", 100*1000, task_motor);
+//    task_create("log", 10*1000, task_log);
+//    task_create("motor", 100*1000, task_motor);
+    task_create("batt", 20*1000, task_batt);
 
     while(1) {
 

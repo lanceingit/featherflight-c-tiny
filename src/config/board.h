@@ -31,6 +31,10 @@
 #define MPU6050_GYRO_XY_DEFAULT_FILTER_FREQ		30.0f
 #define MPU6050_GYRO_Z_DEFAULT_FILTER_FREQ		30.0f
 
+#define BATT_ADC        ADC2
+#define BATT_PORT       GPIOA
+#define BATT_PIN        GPIO_Pin_4
+
 #elif LINUX
 
 #define SYSTEM_CYCLE              (1000)

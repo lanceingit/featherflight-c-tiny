@@ -104,16 +104,17 @@ static void pwmOCConfig(TIM_TypeDef *tim, uint8_t channel, uint16_t value)
 
 void motor_init(void)
 {
+    GPIO_InitTypeDef GPIO_InitStructure;
+    
     for(uint8_t i=0; i<4; i++) {
         //IO init
         RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA, ENABLE);   //TODO:
         GPIO_PinAFConfig(this[i].port, this[i].af_src, this[i].pin_af);
-        GPIO_InitTypeDef GPIO_InitStructure = {
-            .GPIO_Mode = GPIO_Mode_AF,
-//            .GPIO_Speed = 0,  //AF PP not need
-            .GPIO_OType = GPIO_OType_PP,
-            .GPIO_PuPd = GPIO_PuPd_NOPULL,            
-        };
+        
+        GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF,
+//      GPIO_InitStructure.GPIO_Speed = 0,  //AF PP not need
+        GPIO_InitStructure.GPIO_OType = GPIO_OType_PP,
+        GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL,            
         GPIO_InitStructure.GPIO_Pin = this[i].pin,
         GPIO_Init(this[i].port, &GPIO_InitStructure);
 

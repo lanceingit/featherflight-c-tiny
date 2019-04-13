@@ -3,7 +3,9 @@
 #include <string.h>
 #include <stdarg.h>
 
-#ifdef LINUX
+#ifdef F3_EVO
+#include "serial.h"
+#elif LINUX
 #include <stdlib.h>
 #include <unistd.h>
 #include <arpa/inet.h>
@@ -48,7 +50,14 @@ void reboot_shell(int argc, char *argv[]);
 static uint8_t read_buffer[BUFFER_SIZE+1];
 static uint8_t write_buffer[500];
 
-#ifdef LINUX
+#ifdef F3_EVO
+#define RX_BUF_SIZE 300    
+#define TX_BUF_SIZE 512 
+
+Serial* cli_port;
+uint8_t cli_rxBuf[RX_BUF_SIZE]; 
+uint8_t cli_txBuf[TX_BUF_SIZE];
+#elif LINUX
 #define CLI_PORT  14558
 static int cli_socket_fd = -1;
 static struct sockaddr_in recv_addr;
@@ -58,6 +67,7 @@ static int addr_len = 0;
 void cli_device_init(void)
 {
 #ifdef F3_EVO
+    cli_port = serial_open(USART1, 115200, cli_rxBuf, RX_BUF_SIZE, cli_txBuf, TX_BUF_SIZE);
 #elif LINUX     
 	int flag = 0;
 	struct sockaddr_in addr;
@@ -93,7 +103,17 @@ void cli_init(void)
 int cli_device_read(uint8_t* socket_buffer, uint16_t size)
 {
 #ifdef F3_EVO
-    return 0;    
+    uint8_t c;
+    int len = 0;
+
+    while(serial_available(cli_port) && size--) {
+        if(serial_read(cli_port, &c) == 0) {
+            socket_buffer[len] = c;
+            len++;
+        }    
+    }
+    
+    return len;    
 #elif LINUX     
     int len = 0;
 
@@ -120,11 +140,12 @@ void cli_device_write(const char *format, ...)
 	int len;
 
 	va_start(args,format);
-//	len = vsprintf((char*)write_buffer, format, args);
-    len = evprintf(format, args);
+	len = vsprintf((char*)write_buffer, format, args);
+//    len = evprintf(format, args);
 	va_end(args);
 
 #ifdef F3_EVO
+    serial_write(cli_port, write_buffer, len);    
 #elif LINUX    
 	sendto(cli_socket_fd, write_buffer, len, 0, (struct sockaddr *)&recv_addr, addr_len);
 #endif    
@@ -161,6 +182,11 @@ void cli_update(void)
     for(uint16_t i=0; i<len; i++) {
         if(cli_char_parse(read_buffer[i])) {
         	cli_handle_cmd(cmd_buf);
+            if(i+1 != len) {
+                if(read_buffer[i]=='\r' && read_buffer[i+1]=='\n') {
+                    i++;
+                }
+            }
         }
     }
 
