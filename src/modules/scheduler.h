@@ -6,8 +6,7 @@ typedef void(*task_callback_func)(void);
 
 #define TASK_NAME_MAX   10
 
-typedef struct 
-{
+typedef struct {
     char name[TASK_NAME_MAX];
     times_t rate;
     times_t time_use;

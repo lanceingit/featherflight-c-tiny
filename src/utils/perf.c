@@ -1,3 +1,17 @@
+/**                                               _____           ,-.
+ * _______       _____       _____                ___   _,.      /  /
+ * ___    |__   ____(_)_____ __  /______________  __   ; \____,-==-._  )
+ * __  /| |_ | / /_  /_  __ `/  __/  __ \_  ___/  _    //_    `----' {+>
+ * _  ___ |_ |/ /_  / / /_/ // /_ / /_/ /  /      _    `  `'--/  /-'`(
+ * /_/  |_|____/ /_/  \__,_/ \__/ \____//_/       _          /  /
+ *                                                           `='
+ *
+ * perf.c
+ *
+ * v1.0
+ *
+ * Time detection tool
+ */
 #include "board.h"
 
 #include "perf.h"
@@ -18,8 +32,7 @@ void perf_init(Perf* self)
 void perf_interval(Perf* self)
 {
     self->t1 = timer_now() - self->t0;
-    if(self->t0 != 0)
-    {
+    if(self->t0 != 0) {
         self->sum += self->t1;
         self->cnt++;
         self->avg = self->sum / self->cnt;
@@ -37,8 +50,7 @@ void perf_begin(Perf* self)
 void perf_end(Perf* self)
 {
     self->t1 = timer_now() - self->t0;
-    if(self->t0 != 0)
-    {
+    if(self->t0 != 0) {
         self->sum += self->t1;
         self->cnt++;
         self->avg = self->sum / self->cnt;
@@ -49,5 +61,6 @@ void perf_end(Perf* self)
 
 void perf_print(Perf* self, char* name)
 {
-    PRINT("%s:curr:%06lld avg:%lld min:%lld max:%lld\n", name, self->t1, self->avg, self->t_min, self->t_max);
+    PRINT("%s:curr:%06lld avg:%lld min:%lld max:%lld\n", name, self->t1, self->avg, self->t_min,
+          self->t_max);
 }

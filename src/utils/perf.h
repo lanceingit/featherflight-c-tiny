@@ -12,8 +12,7 @@
     .t_min = 0xFFFFFFFF, \
 };
 
-typedef struct
-{
+typedef struct {
     times_t t0;
     times_t t1;
     uint64_t cnt;

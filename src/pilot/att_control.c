@@ -1,3 +1,4 @@
+#include "board.h"
 #include "pid.h"
 #include "est.h"
 #include "mixer.h"

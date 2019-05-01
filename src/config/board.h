@@ -10,6 +10,11 @@
 
 #ifdef F3_EVO
 
+#define TASK_MAX     20
+
+#define US_PER_TICK         (10)
+#define TIMER_WIDTH_BIT     64
+
 #define MPU6050_I2C     I2C1
 #define HMC5883_I2C     I2C1
 #define MS5611_I2C      I2C1
@@ -40,6 +45,11 @@
 
 #elif LINUX
 
+#define TASK_MAX     20
+
+#define US_PER_TICK         (10*1000)  //in linux not need
+#define TIMER_WIDTH_BIT     64
+    
 #define SYSTEM_CYCLE              (1000)
 
 #define FLASH_PAGESIZE  8096            
