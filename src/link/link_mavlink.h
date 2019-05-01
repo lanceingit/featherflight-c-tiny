@@ -20,6 +20,7 @@ void mavlink_msg_send(mavlink_message_t* msg);
 bool mavlink_recv(mavlink_message_t* msg);
 void mavlink_stream(void);
 void mavlink_send(mavlink_channel_t chan, const uint8_t *ch, uint16_t length);
+void mavlink_msg_handle(mavlink_message_t* msg);
 
 #include "mavlink.h"
 

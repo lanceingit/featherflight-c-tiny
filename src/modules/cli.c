@@ -51,7 +51,7 @@ static uint8_t read_buffer[BUFFER_SIZE+1];
 static uint8_t write_buffer[500];
 
 #ifdef F3_EVO
-#define RX_BUF_SIZE 300    
+#define RX_BUF_SIZE 200    
 #define TX_BUF_SIZE 512 
 
 Serial* cli_port;
@@ -67,7 +67,7 @@ static int addr_len = 0;
 void cli_device_init(void)
 {
 #ifdef F3_EVO
-    cli_port = serial_open(USART1, 115200, cli_rxBuf, RX_BUF_SIZE, cli_txBuf, TX_BUF_SIZE);
+    cli_port = serial_open(CLI_UART, 115200, cli_rxBuf, RX_BUF_SIZE, cli_txBuf, TX_BUF_SIZE);
 #elif LINUX     
 	int flag = 0;
 	struct sockaddr_in addr;
@@ -93,27 +93,36 @@ void cli_device_init(void)
 #endif    
 }
 
+void cli_print_logo(void)
+{
+    cli_device_write("\n");
+    cli_device_write(" _______       _____       _____\n");
+    cli_device_write(" ___    |__   ____(_)_____ __  /______________ \n");
+    cli_device_write(" __  /| |_ | / /_  /_  __ `/  __/  __ \\_  ___/\n");
+    cli_device_write(" _  ___ |_ |/ /_  / / /_/ // /_ / /_/ /  /\n");\
+    cli_device_write(" /_/  |_|____/ /_/  \\__,_/ \\__/ \\____//_/\n\n");    
+}
+    
 void cli_init(void)
 {
 	cli_device_init();
     cli_regist("help", help_shell);
     cli_regist("reboot", reboot_shell);
+    
+    cli_print_logo();
 }
 
-int cli_device_read(uint8_t* socket_buffer, uint16_t size)
+uint16_t cli_device_read(uint8_t* data, uint16_t size)
 {
 #ifdef F3_EVO
-    uint8_t c;
-    int len = 0;
-
-    while(serial_available(cli_port) && size--) {
-        if(serial_read(cli_port, &c) == 0) {
-            socket_buffer[len] = c;
-            len++;
-        }    
-    }
+    uint16_t i;
     
-    return len;    
+    for(i=0; i<size; i++) {
+        if(serial_read(cli_port, &data[i]) < 0)
+            break;
+    }    
+    
+    return i;    
 #elif LINUX     
     int len = 0;
 
@@ -140,8 +149,9 @@ void cli_device_write(const char *format, ...)
 	int len;
 
 	va_start(args,format);
-	len = vsprintf((char*)write_buffer, format, args);
+	//len = vsprintf((char*)write_buffer, format, args);
 //    len = evprintf(format, args);
+    len = evsprintf((char*)write_buffer, format, args);
 	va_end(args);
 
 #ifdef F3_EVO

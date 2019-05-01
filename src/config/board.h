@@ -35,6 +35,9 @@
 #define BATT_PORT       GPIOA
 #define BATT_PIN        GPIO_Pin_4
 
+#define CLI_UART          1    
+#define MAVLINK_UART      3    
+
 #elif LINUX
 
 #define SYSTEM_CYCLE              (1000)

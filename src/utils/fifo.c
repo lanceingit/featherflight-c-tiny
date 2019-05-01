@@ -169,7 +169,7 @@ int8_t fifo_read(Fifo *self, uint8_t* c)
 
 bool fifo_is_empty(Fifo *self)
 {
-    return (self->head == self->tail);
+    return (self->cnt == 0);
 }
 
 uint16_t fifo_get_count(Fifo *self)

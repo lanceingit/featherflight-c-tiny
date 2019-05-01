@@ -116,15 +116,16 @@ int linux_create_thread(const char *name, int priority, int stack_size, void* en
 void task_link(void)
 {
 	mavlink_message_t msg;
-    wwlink_message_t wwmsg;
+//    wwlink_message_t wwmsg;
 
 	if(mavlink_recv(&msg)) {
         mavlink_log_handle(&msg);
+        mavlink_msg_handle(&msg);
 	}
 
-    wwlink_recv(&wwmsg);    
+//    wwlink_recv(&wwmsg);    
     mavlink_stream();
-    wwlink_stream();
+//    wwlink_stream();
 
     PERF_DEF(link_perf)
     perf_interval(&link_perf);
@@ -266,11 +267,11 @@ int main()
 #endif        
     mtd_test();
     log_init();
-//    mavlink_init();
-    wwlink_init();
+    mavlink_init();
+//    wwlink_init();
     cli_init();
     debug_init();
-
+    
 #ifdef F3_EVO    
     imu_register(&mpu6050.heir);
     baro_register(&ms5611.heir);
@@ -299,15 +300,17 @@ int main()
     task_create("imu", 2000, task_imu);
     task_create("compass", (10000000 / 150), task_compass);
     task_create("baro", 25000, task_baro);
-//    task_create("att", 2000, task_att);
+    task_create("att", 2000, task_att);
 //   // task_create("alt", 2*1000, task_alt);
 //    task_create("cmder", 2000, task_commander);
 //    task_create("nav", 2000, task_navigator);
-//    task_create("link", 2*1000, task_link);
+    task_create("link", 2*1000, task_link);
     task_create("cli", 100*1000, task_cli);
 //    task_create("log", 10*1000, task_log);
 //    task_create("motor", 100*1000, task_motor);
     task_create("batt", 20*1000, task_batt);
+
+    
 
     while(1) {
 

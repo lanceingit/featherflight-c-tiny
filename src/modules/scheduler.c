@@ -47,6 +47,7 @@ void task_disable(Task* t)
 
 void task_print_list(void)
 {
+    PRINT("\n");
     PRINT("NAME\t\tCYCLE/us\tSTATUS\n");
     for(uint8_t i=0; i<task_cnt; i++) {
         PRINT("[%s]\t\t%lld\t\t%s\n", task_tab[i]->name, task_tab[i]->rate, task_tab[i]->run? "run":"idle");

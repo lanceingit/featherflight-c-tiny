@@ -120,6 +120,7 @@
         <SetRegEntry>
           <Number>0</Number>
           <Key>DLGUARM</Key>
+          <Name>猬=w屘?屘?趏'[</Name>
         </SetRegEntry>
         <SetRegEntry>
           <Number>0</Number>
@@ -209,27 +210,32 @@
         <Ww>
           <count>6</count>
           <WinNumber>2</WinNumber>
-          <ItemText>serial1</ItemText>
+          <ItemText>cli_rxBuf</ItemText>
         </Ww>
         <Ww>
           <count>7</count>
           <WinNumber>2</WinNumber>
-          <ItemText>cli_rxBuf</ItemText>
+          <ItemText>cli_txBuf</ItemText>
         </Ww>
         <Ww>
           <count>8</count>
           <WinNumber>2</WinNumber>
-          <ItemText>cli_txBuf</ItemText>
+          <ItemText>cmd_buf</ItemText>
         </Ww>
         <Ww>
           <count>9</count>
           <WinNumber>2</WinNumber>
-          <ItemText>cmd_buf</ItemText>
+          <ItemText>read_buffer</ItemText>
         </Ww>
         <Ww>
           <count>10</count>
           <WinNumber>2</WinNumber>
-          <ItemText>read_buffer</ItemText>
+          <ItemText>serial</ItemText>
+        </Ww>
+        <Ww>
+          <count>11</count>
+          <WinNumber>2</WinNumber>
+          <ItemText>write_buffer</ItemText>
         </Ww>
       </WatchWindow2>
       <Tracepoint>
@@ -282,6 +288,10 @@
         <Entry>
           <Name>System Viewer\ADC1_2</Name>
           <WinId>35905</WinId>
+        </Entry>
+        <Entry>
+          <Name>System Viewer\USART1</Name>
+          <WinId>35903</WinId>
         </Entry>
       </SystemViewers>
       <DebugDescription>
@@ -491,7 +501,7 @@
 
   <Group>
     <GroupName>config</GroupName>
-    <tvExp>0</tvExp>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -547,7 +557,7 @@
 
   <Group>
     <GroupName>driver</GroupName>
-    <tvExp>1</tvExp>
+    <tvExp>0</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -2571,7 +2581,7 @@
 
   <Group>
     <GroupName>modules</GroupName>
-    <tvExp>0</tvExp>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -2663,7 +2673,7 @@
 
   <Group>
     <GroupName>utils</GroupName>
-    <tvExp>1</tvExp>
+    <tvExp>0</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>

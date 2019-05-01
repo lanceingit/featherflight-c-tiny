@@ -11,12 +11,17 @@
 static const char digit[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 
                              'A', 'B', 'C', 'D', 'E', 'F'};
 
+static char* print_buf;                             
+static uint16_t print_cnt=0;
+                             
 int putcf(int c)
 {
-    return 0;
+    print_buf[print_cnt++] = c;
+
+    return print_cnt;
 }
 
-static uint8_t get_int_len(long int value)
+static uint8_t get_int_len(long long int value)
 {
     uint8_t len = 1;
 
@@ -80,7 +85,7 @@ static uint8_t itoa_dec(long int num, uint8_t width, char pad)
         }
     }
 
-    return itoa_dec_unsigned(n);
+    return itoa_dec_unsigned(n)+len;
 }
 
 static uint8_t itoa_hex(unsigned long int num, uint8_t width, char pad)
@@ -163,7 +168,7 @@ static uint8_t itoa_dec_ll(long long int num, uint8_t width, char pad)
         }
     }
 
-    return itoa_dec_unsigned(n);
+    return itoa_dec_unsigned(n)+len;
 }
 
 static uint8_t itoa_hex_ll(unsigned long long int num, uint8_t width, char pad)
@@ -194,49 +199,49 @@ static uint8_t itoa_hex_ll(unsigned long long int num, uint8_t width, char pad)
     return len;
 }
 
-static int handle_longlong(const char* fmt, va_list ap, uint8_t width, char pad)
-{
-    switch(*(fmt)++)
-    {
-        case 'i':
-        case 'd':
-            return itoa_dec_ll(va_arg(ap, long long int), width, pad);
-        case 'u':
-            return itoa_dec_ull(va_arg(ap, long long unsigned int));
-        case 'x':
-        case 'X':
-            return itoa_hex_ll(va_arg(ap, long long unsigned int), width, pad);
-        default:
-        // Nothing here
-        break;
-    }
+//static int handle_longlong(const char* fmt, va_list ap, uint8_t width, char pad)
+//{
+//    switch(*(fmt)++)
+//    {
+//        case 'i':
+//        case 'd':
+//            return itoa_dec_ll(va_arg(ap, long long int), width, pad);
+//        case 'u':
+//            return itoa_dec_ull(va_arg(ap, long long unsigned int));
+//        case 'x':
+//        case 'X':
+//            return itoa_hex_ll(va_arg(ap, long long unsigned int), width, pad);
+//        default:
+//        // Nothing here
+//        break;
+//    }
 
-    return 0;
-}
+//    return 0;
+//}
 
-static uint8_t handle_long(const char* fmt, va_list ap, uint8_t width, char pad)
-{
-    switch(*(fmt)++)
-    {
-        case 'i':
-        case 'd':
-            return itoa_dec(va_arg(ap, long int), width, pad);
-        case 'u':
-            return itoa_dec_unsigned(va_arg(ap, unsigned long int));
-        case 'x':
-        case 'X':
-            return itoa_hex(va_arg(ap, unsigned long int), width, pad);
-        case 'l':
-            return handle_longlong(fmt, ap, width, pad);
-        default:
-        // Nothing here
-        break;
-    }
+//static uint8_t handle_long(const char* fmt, va_list ap, uint8_t width, char pad)
+//{
+//    switch(*(fmt)++)
+//    {
+//        case 'i':
+//        case 'd':
+//            return itoa_dec(va_arg(ap, long int), width, pad);
+//        case 'u':
+//            return itoa_dec_unsigned(va_arg(ap, unsigned long int));
+//        case 'x':
+//        case 'X':
+//            return itoa_hex(va_arg(ap, unsigned long int), width, pad);
+//        case 'l':
+//            return handle_longlong(fmt, ap, width, pad);
+//        default:
+//        // Nothing here
+//        break;
+//    }
 
-    return 0;
-}
+//    return 0;
+//}
 
-int evprintf(const char* fmt, va_list ap)
+int evsprintf(char* buf, const char* fmt, va_list ap)
 {
     int len=0;
     float num;
@@ -245,6 +250,9 @@ int evprintf(const char* fmt, va_list ap)
     uint8_t width;
     char pad;
 
+    print_buf = buf;
+    print_cnt = 0;
+    
     while(*fmt) {
         if(*fmt == '%') {
             precision = DEF_PRECISION;
@@ -286,7 +294,38 @@ int evprintf(const char* fmt, va_list ap)
                     len += itoa_hex(va_arg(ap, unsigned int), width, pad);
                     break;
                 case 'l':
-                    len += handle_long(fmt, ap, width, pad);
+                    //len += handle_long(fmt, ap, width, pad);
+                    switch(*fmt++)
+                    {
+                        case 'd':
+                            len += itoa_dec(va_arg(ap, long int), width, pad);
+                            break;
+                        case 'u':
+                            len += itoa_dec_unsigned(va_arg(ap, unsigned long int));
+                            break;
+                        case 'x':
+                        case 'X':
+                            len += itoa_hex(va_arg(ap, unsigned long int), width, pad);
+                            break;
+                        case 'l':
+                            //len += handle_longlong(fmt, ap, width, pad);
+                            switch(*fmt++)
+                            {
+                                case 'd':
+                                    len += itoa_dec_ll(va_arg(ap, long long int), width, pad);
+                                    break;
+                                case 'u':
+                                    len += itoa_dec_ull(va_arg(ap, long long unsigned int));
+                                    break;
+                                case 'x':
+                                case 'X':
+                                    len += itoa_hex_ll(va_arg(ap, long long unsigned int), width, pad);
+                                    break;
+                                default:break;
+                            }     
+                            break;                       
+                        default:break;
+                    }                                    
                     break;
                 case 'f':
                     num = va_arg(ap, double);
@@ -322,13 +361,13 @@ int evprintf(const char* fmt, va_list ap)
     return len;
 }
 
-int eprintf(const char * fmt, ...)
+int esprintf(char* buf, const char * fmt, ...)
 {
     va_list ap;
     int len;
 
     va_start(ap, fmt);
-    len = evprintf(fmt, ap);
+    len = evsprintf(buf, fmt, ap);
     va_end(ap);
 
     return len;

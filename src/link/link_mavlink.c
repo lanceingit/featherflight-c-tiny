@@ -23,7 +23,7 @@
 
 
 #define RX_BUF_SIZE 300    
-#define TX_BUF_SIZE 300    
+#define TX_BUF_SIZE 1024    
 
 uint8_t sendbuf[300];
 #ifdef F3_EVO
@@ -52,7 +52,7 @@ void mavlink_init(void)
     mavlink_system.compid = MAV_COMP;
     
 #ifdef F3_EVO   
-    _port = serial_open(USART1, 921600, _rxBuf, RX_BUF_SIZE, _txBuf, TX_BUF_SIZE);
+    _port = serial_open(MAVLINK_UART, 115200, _rxBuf, RX_BUF_SIZE, _txBuf, TX_BUF_SIZE);
 #elif LINUX
 	int flag = 0;
 
@@ -142,6 +142,12 @@ void mavlink_send(mavlink_channel_t chan, const uint8_t *ch, uint16_t length)
     if(chan == MAVLINK_COMM_0){
     #ifdef F3_EVO
         serial_write(_port, (uint8_t*)ch, length);  
+        //PRINT_BUF("mav send:", ch, length);
+//        PRINT("mav send(%d):", length);
+//        for(uint8_t i=0; i<length; i++) { 
+//            PRINT("%02x ", ch[i]);  
+//        } 
+//        PRINT("\n"); 
     #elif LINUX
         sendto(_fd, ch, length, 0, (struct sockaddr *)&bcast_addr, addr_len);    
     #endif
@@ -154,7 +160,7 @@ extern float baro_vel;
 void mavlink_stream(void)
 {
     TIMER_DEF(last_heartbeat_update_time)
-    if(timer_check(&last_heartbeat_update_time, 1000*1000))
+    if(timer_check(&last_heartbeat_update_time, 500*1000))
     {
         mavlink_msg_heartbeat_send(MAV_CH,
                                        MAV_TYPE_QUADROTOR, MAV_AUTOPILOT_PX4, 
@@ -162,16 +168,17 @@ void mavlink_stream(void)
                                        0, MAV_STATE_STANDBY);  
     }
     
-    // TIMER_DEF(last_sen_update_time)
-    // if(timer_check(&last_sen_update_time, 30*1000))
-    // {
-    //     mavlink_msg_highres_imu_send(MAV_CH,
-    //                            timer_now(),
-    //                            imu->acc.x, imu->acc.y, imu->acc.z,
-    //                            imu->gyro.x*M_RAD_TO_DEG,imu->gyro.y*M_RAD_TO_DEG,imu->gyro.z*M_RAD_TO_DEG,
-    //                            compass->mag.x, compass->mag.y, compass->mag.z,
-    //                            baro->pressure, (alt_est_3o.heir.ref_inited? baro->altitude_smooth-alt_est_3o.heir.ref_alt:0), baro->altitude, baro->temperature,
-    //                            0xFFFF);
+    TIMER_DEF(last_sen_update_time)
+    if(timer_check(&last_sen_update_time, 50*1000))
+    {
+//        mavlink_msg_highres_imu_send(MAV_CH,
+//                               timer_now(),
+//                               imu->acc.x, imu->acc.y, imu->acc.z,
+//                               imu->gyro.x*M_RAD_TO_DEG,imu->gyro.y*M_RAD_TO_DEG,imu->gyro.z*M_RAD_TO_DEG,
+//                               compass->mag.x, compass->mag.y, compass->mag.z,
+////                               baro->pressure, (alt_est_3o.heir.ref_inited? baro->altitude_smooth-alt_est_3o.heir.ref_alt:0), baro->altitude, baro->temperature,
+//                               baro->pressure, (0), baro->altitude, baro->temperature,
+//                               0xFFFF);
 
         // Vector v;
         // imu_get_acc(0, &v);
@@ -225,7 +232,7 @@ void mavlink_stream(void)
     //                           "3o_acc_c",
     //                           alt_est_3o.acc_corr);             
                              
-    // }
+    }
     
     TIMER_DEF(last_att_update_time)
     if(timer_check(&last_att_update_time, 100*1000))
@@ -285,5 +292,19 @@ void mavlink_stream(void)
 }
 
 
-
+void mavlink_msg_handle(mavlink_message_t* msg)
+{
+	switch(msg->msgid)
+	{
+		case MAVLINK_MSG_ID_MANUAL_CONTROL:
+        {
+            mavlink_manual_control_t c;
+            mavlink_msg_manual_control_decode(msg, &c);
+            PRINT("target:%d x:%03d y:%04d z:%04d r:%04d b:%d\n", c.target, c.x, c.y, c.z, c.r, c.buttons);
+            
+            break;
+        }
+        default:break;
+    }
+}
 
