@@ -49,16 +49,18 @@ struct buildin_s {
     shell_func cmd;
 };
 
-#define BUFFER_SIZE 50
-static char cmd_buf[BUFFER_SIZE+1];
+#define CMD_BUFFER_SIZE 50
+#define WRITE_BUFFER_SIZE   1000
+
+char cmd_buf[CMD_BUFFER_SIZE+1];
 static uint8_t read_cnt=0;
 static uint16_t cmd_total;
 
-static struct buildin_s shell[100];
+struct buildin_s shell[100];
 static void cli_handle_cmd(char* buf);
 
-static uint8_t read_buffer[BUFFER_SIZE+1];
-static uint8_t write_buffer[500];
+uint8_t read_buffer[CMD_BUFFER_SIZE+1];
+uint8_t write_buffer[WRITE_BUFFER_SIZE];
 
 void help_shell(int argc, char* argv[]);
 void reboot_shell(int argc, char* argv[]);
@@ -195,7 +197,7 @@ bool cli_char_parse(char c)
         cmd_buf[read_cnt++] = c;
     }
 
-    if(read_cnt >=  BUFFER_SIZE) {
+    if(read_cnt >=  CMD_BUFFER_SIZE) {
         read_cnt = 0;
     }
 
@@ -265,7 +267,7 @@ static void cli_handle_cmd(char* buf)
 
 void cli_update(void)
 {
-    int len = cli_device_read(read_buffer, BUFFER_SIZE);
+    int len = cli_device_read(read_buffer, CMD_BUFFER_SIZE);
 
     if(len<=0) return;
 

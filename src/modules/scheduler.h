@@ -13,6 +13,7 @@ typedef struct {
     times_t last_run;
     task_callback_func callback;
     bool run;
+    uint32_t magic;
 } Task;
 
 void task_init(void);

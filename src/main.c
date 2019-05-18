@@ -127,6 +127,7 @@ void task_link(void)
         mavlink_msg_handle(&msg);
 	}
     
+    mavlink_log_run();
     mavlink_param_run();
 
 //    wwlink_recv(&wwmsg);    
@@ -320,7 +321,7 @@ int main()
     task_create("nav", 2000, task_navigator);
     task_create("link", 2*1000, task_link);
     task_create("cli", 100*1000, task_cli);
-//    task_create("log", 10*1000, task_log);
+    task_create("log", 10*1000, task_log);
 //    task_create("motor", 100*1000, task_motor);
     task_create("batt", 20*1000, task_batt);
     task_create("batt", 200*1000, task_failsafe);

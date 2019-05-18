@@ -379,6 +379,16 @@
       </TargetOption>
       <Groups>
         <Group>
+          <GroupName>launch</GroupName>
+          <Files>
+            <File>
+              <FileName>main.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\main.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
           <GroupName>cmsis</GroupName>
           <Files>
             <File>
@@ -1425,16 +1435,6 @@
               <FileName>dcm.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\src\mathlib\dcm.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>launch</GroupName>
-          <Files>
-            <File>
-              <FileName>main.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\src\main.c</FilePath>
             </File>
           </Files>
         </Group>

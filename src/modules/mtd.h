@@ -13,7 +13,7 @@ typedef enum {
 }  mtd_status;
 
 
-#define WRITE_BUF_SIZE 8096
+#define WRITE_BUF_SIZE (FLASH_PAGESIZE*2)
 
 typedef struct {
 #ifdef F3_EVO
@@ -29,7 +29,7 @@ typedef struct {
     uint32_t end_addr;
     uint32_t write_addr;   //offset whith start addr
     Fifo write_fifo;
-    uint8_t write_buf[FLASH_PAGESIZE*2];    
+    uint8_t write_buf[WRITE_BUF_SIZE];    
     uint8_t page_buf[FLASH_PAGESIZE];
 
     bool is_full;    

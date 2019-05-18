@@ -14,6 +14,7 @@
 #endif
 
 #include "link_mavlink.h"
+#include "mavlink_log.h"
 #include "timer.h"
 #include "mathlib.h"
 #include "debug.h"
@@ -48,50 +49,6 @@ mavlink_message_t msg;
 mavlink_system_t mavlink_system;
 
 void handle_log_request_list(mavlink_message_t* msg);
-
-void mavlink_init(void)
-{
-    mavlink_system.sysid = MAV_SYS;
-    mavlink_system.compid = MAV_COMP;
-
-#ifdef F3_EVO
-    _port = serial_open(MAVLINK_UART, 115200, _rxBuf, RX_BUF_SIZE, _txBuf, TX_BUF_SIZE);
-#elif LINUX
-    int flag = 0;
-
-    if((_fd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
-        perror("socket failed\n");
-        exit(1);
-    }
-
-    bzero(&addr, sizeof(addr));
-    addr.sin_family = AF_INET;
-    addr.sin_port = htons(14556);
-    addr.sin_addr.s_addr = htonl(INADDR_ANY) ;
-    flag = fcntl(_fd, F_GETFL, 0);
-    fcntl(_fd, F_SETFL, flag | O_NONBLOCK);
-
-    if(bind(_fd, (struct sockaddr*)&addr, sizeof(addr))<0) {
-        perror("connect failed\n");
-        exit(1);
-    }
-    else {
-    }
-
-    bzero(&bcast_addr, sizeof(bcast_addr));
-    bcast_addr.sin_family = AF_INET;
-    bcast_addr.sin_port = htons(UDP_PORT);
-    bcast_addr.sin_addr.s_addr = inet_addr("192.168.100.255") ;
-
-    addr_len = sizeof(bcast_addr);
-
-    int broadcast_opt = 1;
-
-    if(setsockopt(_fd, SOL_SOCKET, SO_BROADCAST, &broadcast_opt, sizeof(broadcast_opt)) < 0) {
-        perror("setting broadcast permission failed");
-    }
-#endif
-}
 
 void mavlink_msg_send(mavlink_message_t* msg)
 {
@@ -285,16 +242,18 @@ void mavlink_stream(void)
                                    system_status);
     }
 
+    if(mavlink_log_reading()) return;
+    
     TIMER_DEF(last_sen_update_time)
-    if(timer_check(&last_sen_update_time, 50*1000)) {
-//        mavlink_msg_highres_imu_send(MAV_CH,
-//                               timer_now(),
-//                               imu->acc.x, imu->acc.y, imu->acc.z,
-//                               imu->gyro.x*M_RAD_TO_DEG,imu->gyro.y*M_RAD_TO_DEG,imu->gyro.z*M_RAD_TO_DEG,
-//                               compass->mag.x, compass->mag.y, compass->mag.z,
-////                               baro->pressure, (alt_est_3o.heir.ref_inited? baro->altitude_smooth-alt_est_3o.heir.ref_alt:0), baro->altitude, baro->temperature,
-//                               baro->pressure, (0), baro->altitude, baro->temperature,
-//                               0xFFFF);
+    if(timer_check(&last_sen_update_time, 10*1000)) {
+        mavlink_msg_highres_imu_send(MAV_CH,
+                               timer_now(),
+                               imu->acc.x, imu->acc.y, imu->acc.z,
+                               imu->gyro.x*M_RAD_TO_DEG,imu->gyro.y*M_RAD_TO_DEG,imu->gyro.z*M_RAD_TO_DEG,
+                               compass->mag.x, compass->mag.y, compass->mag.z,
+//                               baro->pressure, (alt_est_3o.heir.ref_inited? baro->altitude_smooth-alt_est_3o.heir.ref_alt:0), baro->altitude, baro->temperature,
+                               baro->pressure, (0), baro->altitude, baro->temperature,
+                               0xFFFF);
 
         // Vector v;
         // imu_get_acc(0, &v);
@@ -439,3 +398,46 @@ void mavlink_msg_handle(mavlink_message_t* msg)
     }
 }
 
+void mavlink_init(void)
+{
+    mavlink_system.sysid = MAV_SYS;
+    mavlink_system.compid = MAV_COMP;
+
+#ifdef F3_EVO
+    _port = serial_open(MAVLINK_UART, 115200, _rxBuf, RX_BUF_SIZE, _txBuf, TX_BUF_SIZE);
+#elif LINUX
+    int flag = 0;
+
+    if((_fd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
+        perror("socket failed\n");
+        exit(1);
+    }
+
+    bzero(&addr, sizeof(addr));
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons(14556);
+    addr.sin_addr.s_addr = htonl(INADDR_ANY) ;
+    flag = fcntl(_fd, F_GETFL, 0);
+    fcntl(_fd, F_SETFL, flag | O_NONBLOCK);
+
+    if(bind(_fd, (struct sockaddr*)&addr, sizeof(addr))<0) {
+        perror("connect failed\n");
+        exit(1);
+    }
+    else {
+    }
+
+    bzero(&bcast_addr, sizeof(bcast_addr));
+    bcast_addr.sin_family = AF_INET;
+    bcast_addr.sin_port = htons(UDP_PORT);
+    bcast_addr.sin_addr.s_addr = inet_addr("192.168.100.255") ;
+
+    addr_len = sizeof(bcast_addr);
+
+    int broadcast_opt = 1;
+
+    if(setsockopt(_fd, SOL_SOCKET, SO_BROADCAST, &broadcast_opt, sizeof(broadcast_opt)) < 0) {
+        perror("setting broadcast permission failed");
+    }
+#endif
+}

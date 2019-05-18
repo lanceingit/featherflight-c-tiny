@@ -18,6 +18,8 @@
 #include "mm.h"
 #include <string.h>
 
+#define TASK_MAGIC      0xA012C456
+
 Task* task_tab[TASK_MAX] = {NULL};
 static uint8_t task_cnt=0;
 
@@ -59,6 +61,7 @@ Task* task_create(char* name, times_t interval, task_callback_func cb)
     task_tab[task_cnt]->run = true;
     memcpy(task_tab[task_cnt]->name, name, TASK_NAME_MAX);
     task_tab[task_cnt]->name[TASK_NAME_MAX-1] = '\0';
+    task_tab[task_cnt]->magic = TASK_MAGIC;
 
     task_cnt++;
 
@@ -68,15 +71,21 @@ Task* task_create(char* name, times_t interval, task_callback_func cb)
 void scheduler_run(void)
 {
     for(uint8_t i=0; i<task_cnt; i++) {
-        if(task_tab[i]->run) {
-//            PRINT("task:%d ",i);
-            if(timer_check(&task_tab[i]->last_run, task_tab[i]->rate)) {
-                task_tab[i]->callback();
-                // PRINT("run \n");
+        if(task_tab[i]->magic == TASK_MAGIC) {
+            if(task_tab[i]->run) {
+    //            PRINT("task:%d ",i);
+                if(timer_check(&task_tab[i]->last_run, task_tab[i]->rate)) {
+                    if(task_tab[i]->callback != NULL) {
+                        task_tab[i]->callback();
+                    }
+                    // PRINT("run \n");
+                }
+                else {
+                    // PRINT("wait \n");
+                }
             }
-            else {
-                // PRINT("wait \n");
-            }
+        } else {
+            PRINT("task tab error!\n");
         }
     }
 }

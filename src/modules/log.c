@@ -200,7 +200,7 @@ void log_init(void)
 		log_msg_format.body.labels[1] = 's';
 		log_msg_format.body.labels[2] = ',';
 		memcpy(&log_msg_format.body.labels[3], log_list[i].format.labels, LABELS_SIZE-3);
-		log_msg_format.body.labels[FORMAT_SIZE-1] = '\0';
+		log_msg_format.body.labels[LABELS_SIZE-1] = '\0';
 
 		log_write(&log_msg_format, sizeof(log_msg_format));
 	}

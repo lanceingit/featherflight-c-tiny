@@ -4,6 +4,8 @@
 #include "mavlink_log.h"
 
 #include "log.h"
+#include "debug.h"
+#include "timer.h"
 
 
 MavlinkLog mavlink_log = {
@@ -12,6 +14,10 @@ MavlinkLog mavlink_log = {
 
 static MavlinkLog* this = &mavlink_log;
 
+bool mavlink_log_reading(void)
+{
+    return this->status == LOG_READ;
+}
 
 static void handle_log_request_list(mavlink_message_t* msg)
 {
@@ -34,6 +40,8 @@ static void handle_log_request_data(mavlink_message_t* msg)
 
     uint32_t last_data = log_get_size() - this->log_data.ofs;
 
+    PRINT("[%lld][log]recv request data ofs:%d cnt:%d\n", timer_now()/1000, req.ofs, req.count);
+    
 //	while(last_data > 0)
     {
         memset(this->log_data.data, 0, MAVLINK_MSG_LOG_DATA_FIELD_DATA_LEN);
@@ -76,7 +84,8 @@ void mavlink_log_handle(mavlink_message_t* msg)
 
 void mavlink_log_run(void)
 {
-    if(this->status == LOG_READ) {
+    TIMER_DEF(log_send_time)
+    if(this->status == LOG_READ && timer_check(&log_send_time, 20*1000)) {
         uint32_t last_data = log_get_size() - this->log_data.ofs;
 
         //	while(last_data > 0)
