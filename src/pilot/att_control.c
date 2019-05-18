@@ -4,7 +4,6 @@
 #include "mixer.h"
 #include "mathlib.h"
 #include "param.h"
-#include "attc_param.h"
 
 
 Pid att_pid_roll;
@@ -15,33 +14,6 @@ Pid rate_pid_roll;
 Pid rate_pid_pitch;
 Pid rate_pid_yaw;
 
-
-void att_control_init(void)
-{
-    PARAM_REGISTER(attc)
-	pid_init(&att_pid_roll, PARAM_GET(ATTC_ATT_ROLL_P), 0, 0, 0, PARAM_GET(ATTC_ATT_RP_OUT_LIMIT), 0);
-	pid_init(&att_pid_pitch, PARAM_GET(ATTC_ATT_PITCH_P), 0, 0, 0, PARAM_GET(ATTC_ATT_RP_OUT_LIMIT), 0);
-	pid_init(&att_pid_yaw, PARAM_GET(ATTC_ATT_YAW_P), 0, 0, 0, PARAM_GET(ATTC_ATT_YAW_OUT_LIMIT), 0);
-	
-	pid_init(&rate_pid_roll, PARAM_GET(ATTC_RATE_ROLL_P),
-                                PARAM_GET(ATTC_RATE_ROLL_I),
-                                PARAM_GET(ATTC_RATE_ROLL_D),
-                                PARAM_GET(ATTC_RATE_RP_I_LIMIT),
-                                PARAM_GET(ATTC_RATE_RP_OUT_LIMIT),
-                                PARAM_GET(ATTC_RATE_RP_D_WEIGHT));
-	pid_init(&rate_pid_pitch, PARAM_GET(ATTC_RATE_PITCH_P),
-                                PARAM_GET(ATTC_RATE_PITCH_I),
-                                PARAM_GET(ATTC_RATE_PITCH_D),
-                                PARAM_GET(ATTC_RATE_RP_I_LIMIT),
-                                PARAM_GET(ATTC_RATE_RP_OUT_LIMIT),
-                                PARAM_GET(ATTC_RATE_RP_D_WEIGHT));
-	pid_init(&rate_pid_yaw, PARAM_GET(ATTC_RATE_YAW_P),
-                                PARAM_GET(ATTC_RATE_YAW_I),
-                                PARAM_GET(ATTC_RATE_YAW_D),
-                                PARAM_GET(ATTC_RATE_YAW_I_LIMIT),
-                                PARAM_GET(ATTC_RATE_YAW_OUT_LIMIT),
-                                PARAM_GET(ATTC_RATE_YAW_D_WEIGHT));                                                                
-}
 
 void att_control_roll_pitch_rate_update(float dt, float roll_rate_target, float pitch_rate_target, float limit)
 {
@@ -86,5 +58,31 @@ void att_control_yaw_update(float dt, float yaw_target)
 
     rate_taret_yaw   = pid_update(&att_pid_yaw, yaw_target-EST_YAW, dt);
     att_control_yaw_rate_update(dt, rate_taret_yaw);
+}
+
+void att_control_init(void)
+{
+	pid_init(&att_pid_roll, PARAM_POINT(ATTC_ATT_ROLL_P), 0, 0, 0, PARAM_POINT(ATTC_ATT_RP_OUT_LIMIT), 0);
+	pid_init(&att_pid_pitch, PARAM_POINT(ATTC_ATT_PITCH_P), 0, 0, 0, PARAM_POINT(ATTC_ATT_RP_OUT_LIMIT), 0);
+	pid_init(&att_pid_yaw, PARAM_POINT(ATTC_ATT_YAW_P), 0, 0, 0, PARAM_POINT(ATTC_ATT_YAW_OUT_LIMIT), 0);
+	
+	pid_init(&rate_pid_roll, PARAM_POINT(ATTC_RATE_ROLL_P),
+                                PARAM_POINT(ATTC_RATE_ROLL_I),
+                                PARAM_POINT(ATTC_RATE_ROLL_D),
+                                PARAM_POINT(ATTC_RATE_RP_I_LIMIT),
+                                PARAM_POINT(ATTC_RATE_RP_OUT_LIMIT),
+                                PARAM_POINT(ATTC_RATE_RP_D_WEIGHT));
+	pid_init(&rate_pid_pitch, PARAM_POINT(ATTC_RATE_PITCH_P),
+                                PARAM_POINT(ATTC_RATE_PITCH_I),
+                                PARAM_POINT(ATTC_RATE_PITCH_D),
+                                PARAM_POINT(ATTC_RATE_RP_I_LIMIT),
+                                PARAM_POINT(ATTC_RATE_RP_OUT_LIMIT),
+                                PARAM_POINT(ATTC_RATE_RP_D_WEIGHT));
+	pid_init(&rate_pid_yaw, PARAM_POINT(ATTC_RATE_YAW_P),
+                                PARAM_POINT(ATTC_RATE_YAW_I),
+                                PARAM_POINT(ATTC_RATE_YAW_D),
+                                PARAM_POINT(ATTC_RATE_YAW_I_LIMIT),
+                                PARAM_POINT(ATTC_RATE_YAW_OUT_LIMIT),
+                                PARAM_POINT(ATTC_RATE_YAW_D_WEIGHT));                                                                
 }
 

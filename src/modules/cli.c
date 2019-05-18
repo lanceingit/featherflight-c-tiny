@@ -66,7 +66,7 @@ void reboot_shell(int argc, char* argv[]);
 
 #ifdef STM32F3
     #define RX_BUF_SIZE 300    
-    #define TX_BUF_SIZE 512 
+    #define TX_BUF_SIZE 1024 
 
     Serial* cli_port;
     uint8_t cli_rxBuf[RX_BUF_SIZE]; 
@@ -280,7 +280,7 @@ void cli_update(void)
 void cli_thread_entry(void* parameter)
 {
     while(1) {
-        cli_updata();
+        cli_update();
         rt_thread_delay(RT_TICK_PER_SECOND/50);
     }
 }

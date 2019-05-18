@@ -10,10 +10,10 @@ typedef struct
 	bool mag_decl_auto;
 	float mag_decl;
     Vector mag_earth;
-	float bias_max;
-	float w_accel;
-	float w_mag;
-	float w_gyro_bias;    
+	float* bias_max;
+	float* w_accel;
+	float* w_mag;
+	float* w_gyro_bias;    
 
     Vector rate;
 

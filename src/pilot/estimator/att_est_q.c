@@ -6,7 +6,6 @@
 #include "lpf.h"
 #include "param.h"
 
-#include "att_param.h"
 #include "debug.h"
 
 
@@ -27,7 +26,6 @@ static AttEstQ* this=&att_est_q;
 bool att_est_q_init(void)
 { 
 	PRINT("att q init \n");
-    PARAM_REGISTER(att)
 	lpf2p_init(&this->acc_filter_x, 625.0f, 30.0f);
 	lpf2p_init(&this->acc_filter_y, 625.0f, 30.0f);
 	lpf2p_init(&this->acc_filter_z, 625.0f, 30.0f);
@@ -36,10 +34,10 @@ bool att_est_q_init(void)
 	lpf2p_init(&this->gyro_filter_z, 625.0f, 30.0f);
     this->mag_decl_auto = true;
     this->mag_decl = 0.0f;
-	this->bias_max = PARAM_GET(ATT_BIAS_MAX);//10.05f;
-	this->w_accel = PARAM_GET(ATT_W_ACCEL);//0.2f;
-	this->w_mag = PARAM_GET(ATT_W_MAG);//0.1f;
-	this->w_gyro_bias = PARAM_GET(ATT_W_GYRO_BIAS;);//0.1f;
+	this->bias_max = PARAM_POINT(ATT_BIAS_MAX);//10.05f;
+	this->w_accel = PARAM_POINT(ATT_W_ACCEL);//0.2f;
+	this->w_mag = PARAM_POINT(ATT_W_MAG);//0.1f;
+	this->w_gyro_bias = PARAM_POINT(ATT_W_GYRO_BIAS;);//0.1f;
 //	PRINT("w_gyro_bias=%f\n", (double)this->w_gyro_bias);
     
     
@@ -131,7 +129,7 @@ bool att_est_q_run(float dt)
 		float mag_err = wrap_pi(atan2_f(this->mag_earth.y, this->mag_earth.x) - this->mag_decl);
 
 		// Project magnetometer correction to body frame
-        this->heir.corr = vector_add(this->heir.corr, vector_mul(quaternion_conjugate_inversed(this->heir.q, vector_set(0.0f, 0.0f, -mag_err)), this->w_mag));
+        this->heir.corr = vector_add(this->heir.corr, vector_mul(quaternion_conjugate_inversed(this->heir.q, vector_set(0.0f, 0.0f, -mag_err)), *this->w_mag));
 	}
 
 	this->heir.q = quaternion_normalize(this->heir.q);
@@ -146,16 +144,16 @@ bool att_est_q_run(float dt)
 		           (this->heir.q.w * this->heir.q.w - this->heir.q.x * this->heir.q.x - this->heir.q.y * this->heir.q.y + this->heir.q.z * this->heir.q.z)
 			   );
 
-    this->heir.corr = vector_add(this->heir.corr, vector_mul(vector_cross(k, vector_normalized(this->heir.acc)), this->w_accel));
+    this->heir.corr = vector_add(this->heir.corr, vector_mul(vector_cross(k, vector_normalized(this->heir.acc)), *this->w_accel));
 	//_corr_acc = corr;
 
 	// Gyro bias estimation
 	if (spin_rate < SPIN_RATE_LIMIT) {
-        this->heir.gyro_bias = vector_add(this->heir.gyro_bias, vector_mul(this->heir.corr, (this->w_gyro_bias * dt)));
+        this->heir.gyro_bias = vector_add(this->heir.gyro_bias, vector_mul(this->heir.corr, (*this->w_gyro_bias * dt)));
 
-        this->heir.gyro_bias.x = constrain(this->heir.gyro_bias.x, -this->bias_max, this->bias_max);
-        this->heir.gyro_bias.y = constrain(this->heir.gyro_bias.y, -this->bias_max, this->bias_max);
-        this->heir.gyro_bias.z = constrain(this->heir.gyro_bias.z, -this->bias_max, this->bias_max);
+        this->heir.gyro_bias.x = constrain(this->heir.gyro_bias.x, -*this->bias_max, *this->bias_max);
+        this->heir.gyro_bias.y = constrain(this->heir.gyro_bias.y, -*this->bias_max, *this->bias_max);
+        this->heir.gyro_bias.z = constrain(this->heir.gyro_bias.z, -*this->bias_max, *this->bias_max);
 	}
 
     this->rate = vector_add(this->heir.gyro, this->heir.gyro_bias);

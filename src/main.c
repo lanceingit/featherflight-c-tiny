@@ -16,6 +16,7 @@
 #include "link_mavlink.h"
 #include "link_wwlink.h"
 #include "mavlink_log.h"
+#include "mavlink_param.h"
 #include "timer.h"
 #include "perf.h"
 #include "est.h"
@@ -29,6 +30,8 @@
 #include "fifo.h"
 #include "motor.h"
 #include "battery.h"
+#include "failsafe.h"
+#include "param.h"
 
 Variance baro_variance;
 float baro_vari;
@@ -120,8 +123,11 @@ void task_link(void)
 
 	if(mavlink_recv(&msg)) {
         mavlink_log_handle(&msg);
+        mavlink_param_handle(&msg);
         mavlink_msg_handle(&msg);
 	}
+    
+    mavlink_param_run();
 
 //    wwlink_recv(&wwmsg);    
     mavlink_stream();
@@ -208,6 +214,11 @@ void task_batt(void)
     battery_update();
 }
 
+void task_failsafe(void)
+{
+    failsafe_update();
+}
+
 //void gyro_cal(void)         //TODO:put into sensor
 //{
 //    Vector gyro;
@@ -260,17 +271,18 @@ int main()
     NVIC_PriorityGroupConfig(NVIC_PriorityGroup_4);
     RCC_ClearFlag();
 #endif        
+    cli_init();
+    debug_init();
     mm_init();
     timer_init();    
 #ifdef F3_EVO    
     spi_flash_init();
 #endif        
-    mtd_test();
+//    mtd_test();
+    param_init();
     log_init();
     mavlink_init();
 //    wwlink_init();
-    cli_init();
-    debug_init();
     
 #ifdef F3_EVO    
     imu_register(&mpu6050.heir);
@@ -294,6 +306,8 @@ int main()
 //    alt_est_register(&alt_est_3o.heir);
     // alt_est_register(&alt_est_inav.heir);
     est_init();
+    commander_init();
+    failsafe_init();
 
     variance_create(&baro_variance, 100);
 
@@ -303,14 +317,15 @@ int main()
     task_create("att", 2000, task_att);
 //   // task_create("alt", 2*1000, task_alt);
 //    task_create("cmder", 2000, task_commander);
-//    task_create("nav", 2000, task_navigator);
+    task_create("nav", 2000, task_navigator);
     task_create("link", 2*1000, task_link);
     task_create("cli", 100*1000, task_cli);
 //    task_create("log", 10*1000, task_log);
 //    task_create("motor", 100*1000, task_motor);
     task_create("batt", 20*1000, task_batt);
+    task_create("batt", 200*1000, task_failsafe);
 
-    
+    navigator_set_mode(NAV_STABILIZE);
 
     while(1) {
 

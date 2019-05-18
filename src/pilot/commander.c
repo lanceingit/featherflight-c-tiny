@@ -3,9 +3,9 @@
 #include "timer.h"
 #include "debug.h"
 #include <math.h>
-#include "cmder_param.h"
 #include "trigger.h"
 #include "pilot.h"
+#include "param.h"
 
 
 #define LEFT_STICK_LEFT			(1<<0)
@@ -24,26 +24,26 @@
 #define STICK_LIMIT 0.8f
 #define STICK_DEADZONE 0.15f
 
-struct commander_s
+typedef struct
 {
     bool armed;
     bool flying;
     enum alt_scene_e alt_scene;
     uint8_t curr_controler;
-    Stick stick;
-    float rp_gain;
-    float yaw_rate_gain;
-    float vel_z_gain;
-};
+    Stick stick;      //[-1.0, 1.0]
+    float* rp_gain;
+    float* yaw_rate_gain;
+    float* vel_z_gain;
+} Commander;
 
 
-struct commander_s commander = {
+Commander commander = {
     .armed = false,
     .flying = false,
     .curr_controler = 0,
 };
 
-static struct commander_s* this = &commander;
+static Commander* this = &commander;
 
 
 bool system_armed(void)
@@ -58,19 +58,17 @@ enum alt_scene_e commader_get_alt_scene(void)
 
 float commander_get_roll(void)
 {
-    return this->stick.roll*this->rp_gain;
+    return this->stick.roll*(*this->rp_gain);
 }
 
 float commander_get_pitch(void)
 {
-    return this->stick.pitch*this->rp_gain;
-
+    return this->stick.pitch*(*this->rp_gain);
 }
 
 float commander_get_yaw(void)
 {
     return this->stick.yaw;
-
 }
 
 float commander_get_thrust(void)
@@ -80,38 +78,38 @@ float commander_get_thrust(void)
 
 float commander_get_vel_z(void)
 {
-    return this->stick.thrust*this->vel_z_gain;
+    return this->stick.thrust*(*this->vel_z_gain);
 }
 
 float commander_get_yaw_rate(void)
 {
-    return this->stick.yaw*this->yaw_rate_gain;
+    return this->stick.yaw*(*this->yaw_rate_gain);
 }
 
 void commander_set_roll(uint8_t ch, float v)
 {
-    if(ch > this->curr_controler) {
+    if(ch >= this->curr_controler) {
         this->stick.roll = v;
     }
 }
 
 void commander_set_pitch(uint8_t ch, float v)
 {
-    if(ch > this->curr_controler) {
+    if(ch >= this->curr_controler) {
         this->stick.pitch = v;
     }    
 }
 
 void commander_set_yaw(uint8_t ch, float v)
 {
-    if(ch > this->curr_controler) {
+    if(ch >= this->curr_controler) {
         this->stick.yaw = v;
     }
 }
 
 void commander_set_thrust(uint8_t ch, float v)
 {
-    if(ch > this->curr_controler) {
+    if(ch >= this->curr_controler) {
         this->stick.thrust = v;
     }
 }
@@ -216,14 +214,6 @@ bool check_stick_arm(void)
     return armed;
 }
 
-void commander_init(void)
-{
-    PARAM_REGISTER(cmder);
-    this->rp_gain = PARAM_GET(CMDER_RP_GAIN);
-    this->yaw_rate_gain = PARAM_GET(CMDER_YAW_RATE_GAIN);
-    this->vel_z_gain = PARAM_GET(CMDER_VEL_Z_GAIN);
-}
-
 void commander_update(void)
 {    
     bool arm_status_change=false;
@@ -242,23 +232,23 @@ void commander_update(void)
         case ALT_NORMAL:
             if(arm_status_change) {
                 if(this->armed) {
-                    //在螺旋桨转起来前，设置气压计权重�?，关闭气压计融合�?
+                    //��������ת����ǰ��������ѹ��Ȩ�أ��ر���ѹ���ں�
                     this->alt_scene = ALT_PRE_TAKEOFF;
                 }
             }
             if(this->stick.thrust > STICK_DEADZONE) {
-                //向上打杆。增加vel权重，加快权重转换。加速度对突然运动估计不�?
+                //���ϴ�ˡ�����velȨ�أ��ӿ�Ȩ��ת�������ٶȶ�ͻȻ�˶����Ʋ�׼
                 this->alt_scene = ALT_MOVE_UP;
                 alt_smooth_time = timer_new(1.2e6);
             } else if(this->stick.thrust < -STICK_DEADZONE) {
-                //向下打杆。增加vel权重，比上升更大，加快权重转换�?
+                //���´�ˡ�����velȨ�أ����������󣬼ӿ�Ȩ��ת��
                 this->alt_scene = ALT_MOVE_DOWN;
                 alt_smooth_time = timer_new(1.2e6);
             }
             break;
         case ALT_PRE_TAKEOFF:
-            //当气压计高度大于起飞前高度，设置为起飞模�?
-            //pos，vel权重增加，得到一个准确值。同时减小bias权重，因为这时修正不准�?
+            //����ѹ�Ƹ߶ȴ������ǰ�߶ȣ�����Ϊ���ģʽ
+            //pos��velȨ�����ӣ��õ�һ��׼ȷֵ��ͬʱ��СbiasȨ�أ���Ϊ��ʱ������׼
             if(SENS_BARO_ALT_S-EST_REF_ALT > EST_TERRAIN_OFFSET) {
                 this->alt_scene = ALT_TAKEOFF;
             }              
@@ -276,13 +266,22 @@ void commander_update(void)
             }
             if(fabsf(EST_ALT_VEL) > PARAM_GET(CMDER_VEL_HOLD_MAX) && 
                 (this->alt_scene == ALT_MOVE_UP||timer_is_timeout(&alt_smooth_time))){
-                //悬停不稳时，使用速度控制。能有效抑制上拉后掉�?
+                //��ͣ����ʱ��ʹ���ٶȿ��ơ�����Ч�������������
                 this->alt_scene = ALT_MOVE_UP;
             } else if(!timer_is_timeout(&alt_smooth_time) > 0 && this->alt_scene == ALT_MOVE_DOWN) {
-                //悬停不稳时，使用位置控制，但对目标高度做平滑。能有效抑制下拉后回�?
+                //��ͣ����ʱ��ʹ��λ�ÿ��ƣ�����Ŀ��߶���ƽ��������Ч�����������Ʈ
                 this->alt_scene = ALT_MOVE_DOWN;
             }        
             break;
         default:break;
     }
 }
+
+void commander_init(void)
+{
+    PRINT("commander init!\n");
+    this->rp_gain = PARAM_POINT(CMDER_RP_GAIN);
+    this->yaw_rate_gain = PARAM_POINT(CMDER_YAW_RATE_GAIN);
+    this->vel_z_gain = PARAM_POINT(CMDER_VEL_Z_GAIN);
+}
+

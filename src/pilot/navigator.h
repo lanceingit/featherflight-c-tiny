@@ -1,6 +1,6 @@
 #pragma once
 
-enum nav_mode
+typedef enum
 {
     NAV_STABILIZE = 0,
     NAV_ALTHOLD,
@@ -8,12 +8,12 @@ enum nav_mode
     NAV_TAKEOFF,
     NAV_LAND,      
     NAV_STOP,
-};
+} nav_mode_e;
 
 void navigator_update(void);
 
-bool navigator_set_mode(enum nav_mode mode);
-enum nav_mode navigator_get_mode(void);
+bool navigator_set_mode(nav_mode_e mode);
+nav_mode_e navigator_get_mode(void);
 
 #include "stabilize.h"
 #include "althold.h"

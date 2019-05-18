@@ -34,6 +34,7 @@ int32_t spi_flash_readBytes(uint32_t address, uint8_t* buffer, uint16_t length);
 
 //bool spi_flash_isReady(void);
 //int8_t spi_flash_waitForReady(uint32_t timeout_ms);
+void spi_flash_readStatus(uint8_t* status);
 
 SpiFlash* spi_flash_getGeometry(void);
 

@@ -1,24 +1,25 @@
 #include "board.h"
+#include "debug.h"
 #include "navigator.h"
 #include "timer.h"
 
 typedef void(*nav_update_func)(float dt);
 
-struct navigator_s
+typedef struct
 {
-    enum nav_mode curr_mode;
+    nav_mode_e curr_mode;
     times_t last_update_time;
     nav_update_func nav_update;
-};
+} Navigator;
 
-struct navigator_s navigator = {
+Navigator navigator = {
     .curr_mode = NAV_STOP,
     .nav_update = NULL,
 };
 
-static struct navigator_s* this = &navigator;
+static Navigator* this = &navigator;
 
-bool navigator_set_mode(enum nav_mode mode)
+bool navigator_set_mode(nav_mode_e mode)
 {
     bool ret = false;
 
@@ -55,7 +56,7 @@ bool navigator_set_mode(enum nav_mode mode)
     return ret;    
 }
 
-enum nav_mode navigator_get_mode(void)
+nav_mode_e navigator_get_mode(void)
 {
     return this->curr_mode;
 }
@@ -68,3 +69,9 @@ void navigator_update(void)
     }
 }
 
+//void navigator_init(void)
+//{
+//    PRINT("navigator init!\n");
+
+//    navigator_set_mode(NAV_STABILIZE);
+//}

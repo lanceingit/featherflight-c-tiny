@@ -38,9 +38,11 @@ typedef struct {
 
 void mtd_test(void);
 int8_t mtd_init(Mtd* self, uint16_t sector_start, uint16_t sector_cnt);
-int8_t mtd_seek(Mtd* self, uint32_t offset);
+int8_t mtd_seek_write(Mtd* self, uint32_t offset);
+int8_t mtd_seek_read(Mtd* self, uint32_t offset);
 int8_t mtd_write(Mtd* self, uint8_t* data, uint16_t len);
-int32_t mtd_read(Mtd* self, uint32_t offset, uint8_t* data, uint16_t len);
+int32_t mtd_read(Mtd* self, uint8_t* data, uint16_t len);
+void mtd_sync_sector(Mtd* self, uint8_t sector_num);
 void mtd_sync(Mtd* self);
 uint32_t mtd_get_space(Mtd* self);
 bool mtd_is_full(Mtd* self);

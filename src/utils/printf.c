@@ -18,7 +18,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <ctype.h>
-//#include "mathlib.h"
+#include "mathlib.h"
 
 #define DEF_PRECISION   6
 
@@ -106,6 +106,11 @@ static uint8_t itoa_hex(unsigned long int num, uint8_t width, char pad)
     uint8_t len = 0;
     bool found_first = false;
 
+    if(num == 0) {
+        putcf('0');
+        return 1;
+    }    
+    
     for(int8_t i = (32/4-1); i >= 0; i--) {
         uint8_t shift = i * 4;
         uint32_t mask = (uint32_t)0x0F << shift;

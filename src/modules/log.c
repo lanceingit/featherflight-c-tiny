@@ -149,7 +149,8 @@ void log_write(void* pkt, uint16_t len)
 
 int32_t log_read(uint32_t offset, uint8_t* data, uint16_t len)
 {
-	return mtd_read(&this->mtd, offset, data, len);
+    mtd_seek_read(&this->mtd, offset);
+	return mtd_read(&this->mtd, data, len);
 }
 
 void log_run(void)

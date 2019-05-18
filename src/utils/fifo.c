@@ -8,7 +8,7 @@
  *
  * fifo.c
  *
- * v1.3
+ * v1.4
  *
  * data fifo funtion, also support float
  */
@@ -100,43 +100,69 @@ void fifo_init(Fifo* self, uint8_t* buf, uint16_t size)
     self->cnt = 0;
 }
 
+__asm void CPU_IntDis (void)
+{
+        CPSID   I
+        BX      LR
+}
+__asm void CPU_IntEn (void)
+{
+        CPSIE   I
+        BX      LR
+}
+
+bool fifo_is_full(Fifo* self)
+{
+    return (self->cnt == self->size);
+}
+
+bool fifo_is_empty(Fifo* self)
+{
+    return (self->cnt == 0);
+}
+
 int8_t fifo_write(Fifo* self, uint8_t c)
 {
     // PRINT("fifo_write");
     // fifo_print(fifo);
 
-    if(self->cnt == self->size) {
+    if(fifo_is_full(self)) {
         return -1;
     }
 
+CPU_IntDis();    
     self->data[self->head] = c;
     self->head++;
+    if(self->head >= self->size) {
+        self->head = 0;
+    }
+    
     self->cnt++;
     if(self->cnt > self->size) {
         self->cnt = self->size;
     }
-    if(self->head >= self->size) {
-        self->head = 0;
-    }
-
+CPU_IntEn();
+    
     return 0;
 }
 
 void fifo_write_force(Fifo* self, uint8_t c)
 {
+CPU_IntDis();    
     self->data[self->head] = c;
     self->head++;
+    if(self->head >= self->size) {
+        self->head = 0;
+    }
+    
     self->cnt++;
     if(self->cnt > self->size) {
         self->cnt = self->size;
     }
-    if(self->head >= self->size) {
-        self->head = 0;
-    }
     if(self->cnt == self->size) {
         self->tail = self->head;
     }
-
+CPU_IntEn();
 }
 
 int8_t fifo_read(Fifo* self, uint8_t* c)
@@ -144,25 +170,21 @@ int8_t fifo_read(Fifo* self, uint8_t* c)
     // PRINT("fifo_read");
     // fifo_print(fifo);
 
-    if(self->cnt == 0) {
-        // self->cnt = 0;
+    if(fifo_is_empty(self)) {
         return -1;
     }
-
+CPU_IntDis();
     *c = self->data[self->tail];
     self->tail++;
-    self->cnt--;
     if(self->tail >= self->size) {
         self->tail = 0;
     }
-
+    self->cnt--;
+CPU_IntEn();
+    
     return 0;
 }
 
-bool fifo_is_empty(Fifo* self)
-{
-    return (self->cnt == 0);
-}
 
 uint16_t fifo_get_count(Fifo* self)
 {

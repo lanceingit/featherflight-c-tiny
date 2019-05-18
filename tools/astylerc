@@ -1,0 +1,10 @@
+style=stroustrup
+indent=spaces=4
+indent-preproc-block
+suffix=none
+pad-comma
+unpad-paren
+align-pointer=type
+attach-return-type
+--lineend=windows
+max-code-length=100

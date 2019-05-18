@@ -1,5 +1,7 @@
 #pragma once
 
+#include "board.h"
+
 #if TIMER_WIDTH_BIT==64
     typedef uint64_t times_t;
     #define TIME_MAX 0xFFFFFFFFFFFFFFFF

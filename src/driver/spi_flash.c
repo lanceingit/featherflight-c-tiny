@@ -6,6 +6,7 @@
 #include "spi_flash.h"
 
 #include "timer.h"
+#include "debug.h"
 
 
 #define DISABLE_SPI_FLASH \
@@ -52,7 +53,7 @@ static int8_t spi_flash_writeEnable()
     }
 }
 
-static void spi_flash_readStatus(uint8_t* status)
+void spi_flash_readStatus(uint8_t* status)
 {
     uint8_t command[2] = { M25P16_INSTRUCTION_READ_STATUS_REG, 0 };
     uint8_t in[2];
@@ -71,6 +72,7 @@ static bool spi_flash_isReady(void)
     uint8_t status;
     
     spi_flash_readStatus(&status);
+//    PRINT("[%lld]flash status:%x\n", timer_now()/1000, status);
     
     this->is_busy = this->is_busy && ((status & M25P16_STATUS_FLAG_WRITE_IN_PROGRESS) != 0);
 
@@ -107,6 +109,7 @@ static void spi_flash_readChipID(uint32_t* id)
 
 int8_t spi_flash_eraseSector(uint32_t address)
 {
+//    PRINT("spi_flash_eraseSector!\n");
     uint8_t out[] = { M25P16_INSTRUCTION_SECTOR_ERASE, (uint8_t)((address >> 16) & 0xFF), (uint8_t)((address >> 8) & 0xFF), (uint8_t)(address & 0xFF)};
     int8_t ret;
 
@@ -138,22 +141,23 @@ bool spi_flash_eraseCompletely()
 
 int8_t spi_flash_pageProgram(uint32_t address, const uint8_t* data, uint16_t length)
 {
+//    PRINT("spi_flash_pageProgram!\n");
 	int8_t ret;
     uint8_t command[] = { M25P16_INSTRUCTION_PAGE_PROGRAM, (uint8_t)((address >> 16) & 0xFF), (uint8_t)((address >> 8) & 0xFF), (uint8_t)(address & 0xFF)};
 
-    if(!spi_flash_isReady()) return -1;
+    if(!spi_flash_isReady()) return -4;
 
-    if(spi_flash_writeEnable()<0) return -1;
+    if(spi_flash_writeEnable()<0) return -2;
 
     ENABLE_SPI_FLASH;
 
-    if(spi_transfer(this->spi, NULL, command, sizeof(command)))
+    if(spi_transfer(this->spi, NULL, command, sizeof(command)) >= 0)
     {
         ret = spi_transfer(this->spi, NULL, data, length);
     }
     else
     {
-    	ret = -1;
+    	ret = -3;
     }
 
     DISABLE_SPI_FLASH;
@@ -163,14 +167,15 @@ int8_t spi_flash_pageProgram(uint32_t address, const uint8_t* data, uint16_t len
 
 int32_t spi_flash_readBytes(uint32_t address, uint8_t* buffer, uint16_t length)
 {
+//    PRINT("spi_flash_readBytes!\n");
     uint8_t command[] = { M25P16_INSTRUCTION_READ_BYTES, (uint8_t)((address >> 16) & 0xFF), (uint8_t)((address >> 8) & 0xFF), (uint8_t)(address & 0xFF)};
 
     if(!spi_flash_isReady()) return -1;
 
     ENABLE_SPI_FLASH;
 
-    if(spi_transfer(this->spi, NULL, command, sizeof(command))) {
-        if(!spi_transfer(this->spi, buffer, NULL, length)) 
+    if(spi_transfer(this->spi, NULL, command, sizeof(command)) >= 0) {
+        if(spi_transfer(this->spi, buffer, NULL, length) < 0) 
             length = 0;
     } else {
     	length = 0;

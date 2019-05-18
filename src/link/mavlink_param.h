@@ -4,13 +4,13 @@
 
 
 typedef enum {
-//	LOG_READ,
-//	LOG_IDLE,
+    PARAM_SENDING,
+    PARAM_IDLE,
 } param_status;
 
 typedef struct {
-//    mavlink_log_data_t log_data;
-//    log_status status;
+    param_status status;
+    uint16_t send_index;
 } MavlinkParam;
 
 

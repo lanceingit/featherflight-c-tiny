@@ -1,10 +1,11 @@
-#include "altc_param.h"
+#include "board.h"
 #include "pilot.h"
 #include "pid.h"
 #include "timer.h"
 #include "lpf.h"
 #include "commander.h"
 #include <math.h>
+#include "param.h"
 
 Pid alt_vel_pid;
 Pid alt_pos_pid;
@@ -13,15 +14,14 @@ static float alt_target;
 
 void alt_control_init(void)
 {
-    PARAM_REGISTER(altc)
-	pid_init(&alt_pos_pid, PARAM_GET(ALTC_POS_P), 0.0f, 0.0f, 0.0f, PARAM_GET(ATTC_POS_OUT_LIMIT), 0.0f);
+	pid_init(&alt_pos_pid, PARAM_POINT(ALTC_POS_P), NULL, NULL, NULL, PARAM_POINT(ATTC_POS_OUT_LIMIT), NULL);
 	
-	pid_init(&alt_vel_pid, PARAM_GET(ALTC_VEL_P),
-                            PARAM_GET(ALTC_VEL_I),
-                            PARAM_GET(ALTC_VEL_D),
-                            PARAM_GET(ALTC_VEL_I_LIMIT),
-                            PARAM_GET(ALTC_VEL_OUT_LIMIT),
-                            PARAM_GET(ALTC_VEL_D_WEIGHT));                                                            
+	pid_init(&alt_vel_pid, PARAM_POINT(ALTC_VEL_P),
+                            PARAM_POINT(ALTC_VEL_I),
+                            PARAM_POINT(ALTC_VEL_D),
+                            PARAM_POINT(ALTC_VEL_I_LIMIT),
+                            PARAM_POINT(ALTC_VEL_OUT_LIMIT),
+                            PARAM_POINT(ALTC_VEL_D_WEIGHT));                                                            
 }
 
 void alt_control_update(float dt, float vel_target)
