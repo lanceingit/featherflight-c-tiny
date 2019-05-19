@@ -29,7 +29,6 @@
 #define RX_BUF_SIZE 300
 #define TX_BUF_SIZE 1024
 
-uint8_t sendbuf[300];
 #ifdef F3_EVO
     Serial* _port;
 #elif LINUX
@@ -50,19 +49,7 @@ mavlink_system_t mavlink_system;
 
 void handle_log_request_list(mavlink_message_t* msg);
 
-void mavlink_msg_send(mavlink_message_t* msg)
-{
-    uint16_t len;
-
-    len = mavlink_msg_to_send_buffer(sendbuf, msg);
-#ifdef F3_EVO
-    serial_write(_port, sendbuf, len);
-#elif LINUX
-    sendto(_fd, sendbuf, len, 0, (struct sockaddr*)&bcast_addr, addr_len);
-#endif
-}
-
-bool mavlink_recv(mavlink_message_t* msg)
+bool mavlink_recv(uint8_t ch, mavlink_message_t* msg)
 {
 
 #ifdef F3_EVO

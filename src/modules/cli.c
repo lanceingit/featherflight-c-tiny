@@ -171,7 +171,7 @@ void cli_device_write(const char* format, ...)
     va_end(args);
 
 #ifdef STM32F3
-    serial_write(cli_port, write_buffer, len);  
+    //serial_write(cli_port, write_buffer, len);  
 #elif LINUX
     sendto(cli_socket_fd, write_buffer, len, 0, (struct sockaddr*)&recv_addr, addr_len);
 
@@ -291,7 +291,7 @@ void cli_thread_entry(void* parameter)
 void cli_device_init(void)
 {
 #ifdef STM32F3
-    cli_port = serial_open(CLI_UART, 115200, cli_rxBuf, RX_BUF_SIZE, cli_txBuf, TX_BUF_SIZE);
+//    cli_port = serial_open(CLI_UART, 115200, cli_rxBuf, RX_BUF_SIZE, cli_txBuf, TX_BUF_SIZE);
 #elif LINUX
     int flag = 0;
     struct sockaddr_in addr;
